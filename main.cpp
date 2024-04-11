@@ -1,8 +1,10 @@
 #include <iostream>
+#include <string>
+#include <user.h>
+
 using namespace std;
 
-class User {};
-class Admin : public User {};
+
 
 int main() {
     return 0;
