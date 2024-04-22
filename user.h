@@ -4,6 +4,7 @@ class User {
         string name;
         string pronouns;
         string bio;
+        int uid;
 
         //User Profile
         int age;
@@ -27,13 +28,19 @@ class User {
         User() {};
         User(string, string, string, int, int, int, int, int, int, int) {};
 
-        int getAgeWeight() {};
-        int getGenderWeight() {};
-        int getModeWeight() {};
-        int getUniWeight() {};
-        int getMajorWeight() {};
-        int getDaysWeight() {};
-        int getTimesWeight() {};
+        int getAgeWeight();
+        int getGenderWeight();
+        int getModeWeight();
+        int getUniWeight();
+        int getMajorWeight();
+        int getDaysWeight();
+        int getTimesWeight();
 
-        int calculateCompactibilityScore(User &) {};
+        int calculateCompactibilityScore(User &);
+
+        static void login(User &);
+        void logout();
+
+        void swipeLeft(User &);
+        void swipeRight(User &);
 };
