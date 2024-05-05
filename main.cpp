@@ -43,7 +43,7 @@ class User {
 
         User(); // no values given
         User(string, string, string, string, int, int, int, int, int, int, int); //only bio data
-        User(string, string, string, string, int, int, int, int, int, int, int, int, int, int, int, int, int. int); // all weights
+        User(string, string, string, string, int, int, int, int, int, int, int, int, int, int, int, int, int, int); // all weights
 
         int getAgeWeight();
         int getGenderWeight();
@@ -114,7 +114,7 @@ User::User(string name, string password, string pronouns, string bio, int age, i
     timesWeight = 0;
 }
 
-User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, int studyDays, int studyTimes int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
+User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, int studyDays, int studyTimes, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
     this->uid = ++id_counter;
     this->name = name;
     this->pronouns = pronouns;
@@ -209,13 +209,14 @@ void User::writeToCSV() {
 
 
     ofstream file3(passwordFile, ios::app);
-    if (!file.is_open()) {
+    if (!file3.is_open()) {
         cerr << "Error: Could not open file " << passwordFile << " for writing." << endl;
         return;
     }
     file3 << uid << ",";
     file3 << name << ",";
     file3 << password << ",";
+    file3 << '\n';
     file3.close();
 }
 
@@ -273,7 +274,7 @@ void populateCsv(int num) {
         int randomTimesWeight = rand() % 10 + 1;
 
         User temp(names[randomNameIndex], passwords[randomPasswordIndex], pronouns[randomPronounsIndex], bios[randomBioIndex], ages[randomAgeIndex], genders[randomGenderIndex], modes[randomModeIndex], uniIds[randomUniIdIndex], majorIds[randomMajorIdIndex], studyDays[randomStudyDaysIndex], studyTimes[randomStudyTimesIndex], randomAgeWeight, randomGenderWeight, randomModeWeight, randomUniWeight, randomMajorWeight, randomDaysWeight, randomTimesWeight);
-        temp.registerUser();
+        temp.writeToCSV();
     }
 }
 
@@ -288,10 +289,6 @@ void depopulateCsv() {
 
 
 int main() {
-    // User test = User::registerUser();
-    // test.writeToCSV();
-
-    depopulateCsv();
-
+    populateCsv(100);
     return 0;
 }
