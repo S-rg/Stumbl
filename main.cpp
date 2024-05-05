@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdlib>
 
 using namespace std;
 
@@ -40,8 +41,9 @@ class User {
     public:
         static int id_counter;  
 
-        User();
-        User(string, string, string, string, int, int, int, int, int, int, int);
+        User(); // no values given
+        User(string, string, string, string, int, int, int, int, int, int, int); //only bio data
+        User(string, string, string, string, int, int, int, int, int, int, int, int, int, int, int, int, int. int); // all weights
 
         int getAgeWeight();
         int getGenderWeight();
@@ -112,6 +114,31 @@ User::User(string name, string password, string pronouns, string bio, int age, i
     timesWeight = 0;
 }
 
+User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, int studyDays, int studyTimes int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
+    this->uid = ++id_counter;
+    this->name = name;
+    this->pronouns = pronouns;
+    this->bio = bio;
+
+    this->password = password;
+
+    this->age = age;
+    this->gender = gender;
+    this->mode = mode;
+    this->uniId = uniId;
+    this->majorId = majorId;
+    this->studyDays = studyDays;
+    this->studyTimes = studyTimes;
+
+    this->ageWeight = ageWeight;
+    this->genderWeight = genderWeight;
+    this->modeWeight = modeWeight;
+    this->uniWeight = uniWeight;
+    this->majorWeight = majorWeight;
+    this->daysWeight = daysWeight;
+    this->timesWeight = timesWeight;
+};
+
 int User::getAgeWeight() {return this->ageWeight;}
 int User::getGenderWeight() {return this->genderWeight;}
 int User::getModeWeight() {return this->modeWeight;}
@@ -181,19 +208,90 @@ void User::writeToCSV() {
     file.close();
 
 
-    ofstream file(passwordFile, ios::app);
+    ofstream file3(passwordFile, ios::app);
     if (!file.is_open()) {
         cerr << "Error: Could not open file " << passwordFile << " for writing." << endl;
         return;
     }
-    file << uid << ",";
-    file << name << ",";
-    file << password << ",";
+    file3 << uid << ",";
+    file3 << name << ",";
+    file3 << password << ",";
+    file3.close();
 }
 
+//populate the csv with random data
+void populateCsv(int num) {
+    string names[] = {"Alice", "Bob", "Charlie", "David", "Eve"};
+    string passwords[] = {"password1", "password2", "password3", "password4", "password5"};
+    string pronouns[] = {"she/her", "he/him", "they/them"};
+    string bios[] = {"I love coding!", "Music is my passion.", "I'm a bookworm.", "I enjoy outdoor activities."};
+    int ages[] = {18, 19, 20, 21, 22};
+    int genders[] = {0, 1, 2};
+    int modes[] = {0, 1};
+    int uniIds[] = {1, 2, 3, 4, 5};
+    int majorIds[] = {101, 102, 103, 104, 105};
+    int studyDays[] = {3, 4, 5};
+    int studyTimes[] = {1, 2, 3, 4};
+
+    int randomNameIndex = rand() % 5;
+    int randomPasswordIndex = rand() % 5;
+    int randomPronounsIndex = rand() % 3;
+    int randomBioIndex = rand() % 4;
+    int randomAgeIndex = rand() % 5;
+    int randomGenderIndex = rand() % 3;
+    int randomModeIndex = rand() % 2;
+    int randomUniIdIndex = rand() % 5;
+    int randomMajorIdIndex = rand() % 5;
+    int randomStudyDaysIndex = rand() % 3;
+    int randomStudyTimesIndex = rand() % 4;
+    int randomAgeWeight = rand() % 10 + 1; 
+    int randomGenderWeight = rand() % 10 + 1;
+    int randomModeWeight = rand() % 10 + 1;
+    int randomUniWeight = rand() % 10 + 1;
+    int randomMajorWeight = rand() % 10 + 1;
+    int randomDaysWeight = rand() % 10 + 1;
+    int randomTimesWeight = rand() % 10 + 1;
+
+    for (int i = 0; i < num; i++) {
+        int randomNameIndex = rand() % 5;
+        int randomPasswordIndex = rand() % 5;
+        int randomPronounsIndex = rand() % 3;
+        int randomBioIndex = rand() % 4;
+        int randomAgeIndex = rand() % 5;
+        int randomGenderIndex = rand() % 3;
+        int randomModeIndex = rand() % 2;
+        int randomUniIdIndex = rand() % 5;
+        int randomMajorIdIndex = rand() % 5;
+        int randomStudyDaysIndex = rand() % 3;
+        int randomStudyTimesIndex = rand() % 4;
+        int randomAgeWeight = rand() % 10 + 1; 
+        int randomGenderWeight = rand() % 10 + 1;
+        int randomModeWeight = rand() % 10 + 1;
+        int randomUniWeight = rand() % 10 + 1;
+        int randomMajorWeight = rand() % 10 + 1;
+        int randomDaysWeight = rand() % 10 + 1;
+        int randomTimesWeight = rand() % 10 + 1;
+
+        User temp(names[randomNameIndex], passwords[randomPasswordIndex], pronouns[randomPronounsIndex], bios[randomBioIndex], ages[randomAgeIndex], genders[randomGenderIndex], modes[randomModeIndex], uniIds[randomUniIdIndex], majorIds[randomMajorIdIndex], studyDays[randomStudyDaysIndex], studyTimes[randomStudyTimesIndex], randomAgeWeight, randomGenderWeight, randomModeWeight, randomUniWeight, randomMajorWeight, randomDaysWeight, randomTimesWeight);
+        temp.registerUser();
+    }
+}
+
+//removes all data from the csv
+void depopulateCsv() {
+    ofstream file1(userDataFile);
+    file1.close();
+    ofstream file2(passwordFile);
+    file2.close();
+}
+
+
+
 int main() {
-    User test = User::registerUser();
-    test.writeToCSV();
+    // User test = User::registerUser();
+    // test.writeToCSV();
+
+    depopulateCsv();
 
     return 0;
 }
