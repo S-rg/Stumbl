@@ -6,7 +6,7 @@ using namespace std;
 
 // Constants
 const int MAX_USERS = 100; // Maximum number of users
-
+const string f = "userdata.csv";
 // Structure to store user data
 struct UserData {
     string username;
@@ -23,7 +23,7 @@ int main() {
     UserData users[MAX_USERS];
     int numUsers = 0;
 
-    ifstream file("userdata.csv");
+    ifstream file(f);
     if (file.is_open()) {
         string username, password;
         while (file >> username >> password && numUsers < MAX_USERS) {
@@ -71,7 +71,7 @@ int main() {
     } while (choice != 3);
 
     // Save user data to file before exiting
-    ofstream outfile("userdata.csv");
+    ofstream outfile(f);
     if (outfile.is_open()) {
         for (int i = 0; i < numUsers; i++) {
             outfile << users[i].username << " " << users[i].password << endl;
