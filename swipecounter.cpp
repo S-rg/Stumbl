@@ -3,12 +3,14 @@
 #include <unordered_map>
 #include <ctime>
 
+using namespace std;
+
 class Swipe {
 private:
-    std::unordered_map<std::string, int> swipeCount;
+    unordered_map<string, int> swipeCount;
 
 public:
-    void recordSwipe(const std::string& code) {
+    void recordSwipe(const string& code) {
         if (swipeCount.find(code) != swipeCount.end()) {
             swipeCount[code]++;
         } else {
@@ -16,7 +18,7 @@ public:
         }
     }
 
-    int getSwipeCount(const std::string& code) {
+    int getSwipeCount(const string& code) {
         if (swipeCount.find(code) != swipeCount.end()) {
             return swipeCount[code];
         } else {
@@ -33,8 +35,8 @@ int main() {
     swipeTracker.recordSwipe("A123");
     swipeTracker.recordSwipe("A123");
 
-    std::cout << "Swipe count for A123: " << swipeTracker.getSwipeCount("A123") << std::endl;
-    std::cout << "Swipe count for B456: " << swipeTracker.getSwipeCount("B456") << std::endl;
+    cout << "Swipe count for A123: " << swipeTracker.getSwipeCount("A123") << endl;
+    cout << "Swipe count for B456: " << swipeTracker.getSwipeCount("B456") << endl;
 
     return 0;
 }
