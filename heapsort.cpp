@@ -84,15 +84,28 @@ class heap{
             }
         }
     }
-};
-
-void heapify(int arr[],int n,int i)
+    void heapsort()
+    {
+        // int sizep=n;
+        int s=size;
+        while(s>1)
+        {
+            int temp=arr[1];
+            arr[1]=arr[s];
+            arr[s]=temp;
+            
+            s--;
+            
+            heapify(arr,s,1);
+        }
+    }
+    void heapify(int arr[],int n,int i)
 {
     int largest = i;
     int leftchild=2*i;
     int rightchild=(2*i)+1;
     
-    if(leftchild < n && arr[leftchild] > arr[largest])
+    if(leftchild <= n && arr[leftchild] > arr[largest])
     {
         int temp = arr[largest];
         arr[largest] = arr[leftchild];
@@ -100,7 +113,7 @@ void heapify(int arr[],int n,int i)
         
         largest= leftchild;
     }
-    if(rightchild < n && arr[rightchild] > arr[largest])
+    if(rightchild <= n && arr[rightchild] > arr[largest])
     {
         int temp = arr[largest];
         arr[largest] = arr[rightchild];
@@ -113,6 +126,12 @@ void heapify(int arr[],int n,int i)
         heapify( arr,n,largest);
     }
 }
+
+};
+
+
+
+
 int main()
 {
    heap h;
@@ -123,21 +142,23 @@ int main()
    h.insert(54);
    
    h.print();
-   
-   h.deleteheap();
+   h.heapsort();
+   cout<<"after sortnig..."<<endl;
    h.print();
+//   h.deleteheap();
+//   h.print();
    
-   int arr[6]={-1,54,53,55,52,50};
-   int n=5;
-   for(int i=n/2;i>0;i--)
-   {
-       heapify(arr,n,i);
-   }
+//   int arr[6]={-1,54,53,55,52,50};
+//   int n=5;
+//   for(int i=n/2;i>0;i--)
+//   {
+//       heapify(arr,n,i);
+//   }
    
-    for(int i=1;i<=n;i++)
-   {
-       cout<<arr[i]<<" ";
-   }
+//     for(int i=1;i<=n;i++)
+//   {
+//       cout<<arr[i]<<" ";
+//   }
    
    
     return 0;
