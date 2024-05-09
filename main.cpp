@@ -1,6 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <bitset>
+#include <sstream>
+#include <unordered_map>
+#include <vector>
 #include <cstdlib>
 
 using namespace std;
@@ -8,8 +12,18 @@ using namespace std;
 const string userDataFile = "userData.csv";
 const string passwordFile = "password.csv";
 
+const unordered_map<string, int> dayToBitMap = {
+    {"Monday", 6},
+    {"Tuesday", 5},
+    {"Wednesday", 4},
+    {"Thursday", 3},
+    {"Friday", 2},
+    {"Saturday", 1},
+    {"Sunday", 0}
+};
+
 class User {
-    private:
+    protected:
 
         //Basic Info
         string name;
@@ -45,6 +59,19 @@ class User {
         User(string, string, string, string, int, int, int, int, int, int, int); //only bio data
         User(string, string, string, string, int, int, int, int, int, int, int, int, int, int, int, int, int, int); // all weights
 
+        string getName();
+        string getPronouns();
+        string getBio();
+        int getId();
+
+        int getAge();
+        int getGender();
+        int getMode(); 
+        int getUniId();
+        int getMajorId();
+        int getStudyDays();
+        int getStudyTimes();
+
         int getAgeWeight();
         int getGenderWeight();
         int getModeWeight();
@@ -52,8 +79,6 @@ class User {
         int getMajorWeight();
         int getDaysWeight();
         int getTimesWeight();
-
-        int calculateCompactibilityScore(User &);
 
         static User login(string);
         void logout();
@@ -63,6 +88,19 @@ class User {
         void swipeLeft(User &);
         void swipeRight(User &);
 };
+
+class Centroid : public User {
+    public:
+        Centroid() : User() {};
+};
+
+class Cluster {
+    public:
+        Centroid c;
+        User* users;
+
+        Cluster();
+}
 
 int User::id_counter = 0;
 
@@ -138,6 +176,19 @@ User::User(string name, string password, string pronouns, string bio, int age, i
     this->daysWeight = daysWeight;
     this->timesWeight = timesWeight;
 };
+
+string User::getName() {return this->name;}
+string User::getPronouns() {return this->pronouns;}
+string User::getBio() {return this->bio;}
+int User::getId() {return this->uid;}
+
+int User::getAge() {return this->age;}
+int User::getGender() {return this->gender;}
+int User::getMode() {return this->mode;}
+int User::getUniId() {return this->uniId;}
+int User::getMajorId() {return this->majorId;}
+int User::getStudyDays() {return this->studyDays;}
+int User::getStudyTimes() {return this->studyTimes;}
 
 int User::getAgeWeight() {return this->ageWeight;}
 int User::getGenderWeight() {return this->genderWeight;}
@@ -286,7 +337,48 @@ void depopulateCsv() {
     file2.close();
 }
 
+int calculateCompactibilityScore(User &user1, User &user2) {};
 
+//K MEANS
+void clusterize(const vector<User>& users, const vector<Centroid> centroids, vector<int>& clusters) {
+    for (int i = 0; i < users.size(); i++) {
+        int minScore = clusters.front;
+        int closestCluster = 0;
+        for (int j = 1; j < centroids.size(); j++) {
+            int score = calculateCompactibilityScore(users[i],centroids[j]);
+            if (score < minScore) {
+                minScore = score;
+                closestCluster = j;
+            }
+        }
+        clusters[i] = closestCluster;
+    }
+}
+
+void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, const vector<int>& clusters) {
+    vector<vector<double>> weightSum(centroids.size(), vector<double>(14, 0));
+    vector<int> count(centroids.size(),0)
+
+    for (int i = 0; i < users.size(); ++i) {
+        weightSum[clusters[i]][0] += users[i].getAgeWeight();
+        weightSum[clusters[i]][1] += users[i].getGenderWeight();
+        weightSum[clusters[i]][2] += users[i].getModeWeight();
+        weightSum[clusters[i]][3] += users[i].getUniWeight();
+        weightSum[clusters[i]][4] += users[i].getMajorWeight();
+        weightSum[clusters[i]][5] += users[i].getDaysWeight();
+        weightSum[clusters[i]][6] += users[i].getTimesWeight();
+
+        weightSum[clusters[i]][7] += users[i].getAge();
+        weightSum[clusters[i]][8] += users[i].getGender();
+        weightSum[clusters[i]][9] += users[i].getMode();
+        weightSum[clusters[i]][10] += users[i].getUniId();
+        weightSum[clusters[i]][11] += users[i].getMajorId();
+        weightSum[clusters[i]][12] += users[i].getStudyDays();
+        weightSum[clusters[i]][13] += users[i].getStudyTimes();
+
+        count[clusters[i]]++;
+    } 
+}
 
 int main() {
     populateCsv(100);
