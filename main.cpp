@@ -64,29 +64,30 @@ class User {
         string getBio();
         int getId();
 
-        int getAge();
-        int getGender();
-        int getMode(); 
-        int getUniId();
-        int getMajorId();
-        int getStudyDays();
-        int getStudyTimes();
+        int getAge() const;
+        int getGender() const;
+        int getMode() const; 
+        int getUniId() const;
+        int getMajorId() const;
+        int getStudyDays() const;
+        int getStudyTimes() const;
 
-        int getAgeWeight();
-        int getGenderWeight();
-        int getModeWeight();
-        int getUniWeight();
-        int getMajorWeight();
-        int getDaysWeight();
-        int getTimesWeight();
+        int getAgeWeight() const;
+        int getGenderWeight() const;
+        int getModeWeight() const;
+        int getUniWeight() const;
+        int getMajorWeight() const;
+        int getDaysWeight() const;
+        int getTimesWeight() const;
 
-        static User login(string);
+        static User login();
         void logout();
         static User registerUser();
         void writeToCSV();
 
-        void swipeLeft(User &);
-        void swipeRight(User &);
+        void swipeLeft();
+        void swipeRight();
+        string toString();
 };
 
 class Centroid : public User {
@@ -100,7 +101,7 @@ class Cluster {
         User* users;
 
         Cluster();
-}
+};
 
 int User::id_counter = 0;
 
@@ -182,21 +183,21 @@ string User::getPronouns() {return this->pronouns;}
 string User::getBio() {return this->bio;}
 int User::getId() {return this->uid;}
 
-int User::getAge() {return this->age;}
-int User::getGender() {return this->gender;}
-int User::getMode() {return this->mode;}
-int User::getUniId() {return this->uniId;}
-int User::getMajorId() {return this->majorId;}
-int User::getStudyDays() {return this->studyDays;}
-int User::getStudyTimes() {return this->studyTimes;}
+int User::getAge() const {return this->age;}
+int User::getGender() const {return this->gender;}
+int User::getMode() const {return this->mode;}
+int User::getUniId() const {return this->uniId;}
+int User::getMajorId() const {return this->majorId;}
+int User::getStudyDays() const {return this->studyDays;}
+int User::getStudyTimes() const {return this->studyTimes;}
 
-int User::getAgeWeight() {return this->ageWeight;}
-int User::getGenderWeight() {return this->genderWeight;}
-int User::getModeWeight() {return this->modeWeight;}
-int User::getUniWeight() {return this->uniWeight;}
-int User::getMajorWeight() {return this->majorWeight;}
-int User::getDaysWeight() {return this->daysWeight;}
-int User::getTimesWeight() {return this->timesWeight;}
+int User::getAgeWeight() const {return this->ageWeight;}
+int User::getGenderWeight() const {return this->genderWeight;}
+int User::getModeWeight() const {return this->modeWeight;}
+int User::getUniWeight() const {return this->uniWeight;}
+int User::getMajorWeight() const {return this->majorWeight;}
+int User::getDaysWeight() const {return this->daysWeight;}
+int User::getTimesWeight() const {return this->timesWeight;}
 
 User User::registerUser() {
     string name, password, pronouns, bio;
@@ -271,6 +272,20 @@ void User::writeToCSV() {
     file3.close();
 }
 
+string User::toString() {
+    string userString = "Name: " + name + "\n";
+    userString += "Pronouns: " + pronouns + "\n";
+    userString += "Bio: " + bio + "\n";
+    userString += "Age: " + to_string(age) + "\n";
+    userString += "Gender: " + to_string(gender) + "\n";
+    userString += "Mode: " + to_string(mode) + "\n";
+    userString += "Uni ID: " + to_string(uniId) + "\n";
+    userString += "Major ID: " + to_string(majorId) + "\n";
+    userString += "Study Days: " + to_string(studyDays) + "\n";
+    userString += "Study Times: " + to_string(studyTimes) + "\n";
+    return userString;
+}
+
 //populate the csv with random data
 void populateCsv(int num) {
     string names[] = {"Alice", "Bob", "Charlie", "David", "Eve"};
@@ -337,12 +352,14 @@ void depopulateCsv() {
     file2.close();
 }
 
-int calculateCompactibilityScore(User &user1, User &user2) {};
+int calculateCompactibilityScore(const User &user1, const User &user2);
+int calculateCompactibilityScore(const User &user1, const Centroid &centroid);
+
 
 //K MEANS
 void clusterize(const vector<User>& users, const vector<Centroid> centroids, vector<int>& clusters) {
     for (int i = 0; i < users.size(); i++) {
-        int minScore = clusters.front;
+        int minScore = clusters.front();
         int closestCluster = 0;
         for (int j = 1; j < centroids.size(); j++) {
             int score = calculateCompactibilityScore(users[i],centroids[j]);
@@ -357,7 +374,7 @@ void clusterize(const vector<User>& users, const vector<Centroid> centroids, vec
 
 void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, const vector<int>& clusters) {
     vector<vector<double>> weightSum(centroids.size(), vector<double>(14, 0));
-    vector<int> count(centroids.size(),0)
+    vector<int> count(centroids.size(),0);
 
     for (int i = 0; i < users.size(); ++i) {
         weightSum[clusters[i]][0] += users[i].getAgeWeight();
@@ -380,7 +397,82 @@ void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, con
     } 
 }
 
+char getUserChoice(bool isLoggedIn) {
+    char choice;
+    if (isLoggedIn) 
+        cout << "Enter 'L' to reject or 'R' to match. Enter 'H' for further help : ";
+    else
+        cout << "Enter 'L' to login or 'R' to register.";
+
+    cin >> choice;
+    return choice;
+}
+
+void printHelp() {};
+
 int main() {
-    populateCsv(100);
-    return 0;
+    bool isLoggedIn = false;
+    User* curr;
+
+    if (isLoggedIn) {
+        bool done = false;
+        while(true){
+            switch (getUserChoice(true)) 
+            {
+            case 'H':
+                printHelp();
+                break;
+            
+            case 'L':
+                curr->swipeLeft();
+                break;
+            
+            case 'R':
+                curr->swipeRight();
+                break;
+
+            case 'O':
+                curr->logout();
+                isLoggedIn = false;
+                done = true;
+                break;
+
+            case 'V':
+                cout << curr->toString();
+                break;
+
+            default:
+                cout << "Input Invalid. Type H for Help";
+                break;
+            }
+
+            if (done){
+                break;
+            }
+        }
+    } else {
+        bool done = false;
+        while (true) {
+            switch (getUserChoice(false))
+            {
+            case 'L':
+                curr = &User::login;
+                done = true;
+                isLoggedIn = true;
+                break;
+            
+            case 'R':
+                curr = &User::registerUser();
+                done = true;
+                isLoggedIn = true;
+                break;
+
+            default:
+                cout << "Input Invalid";
+                break;
+            }
+
+            if (done) {break;}
+        }
+    }
 }
