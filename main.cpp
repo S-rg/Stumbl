@@ -15,7 +15,7 @@ const string userDataFile = "userData.csv";
 const string passwordFile = "password.csv";
 const string swipingFile = "swiping.csv";
 
-const unordered_map<string, int> dayToBitMap = {
+unordered_map<string, int> dayToBitMap = {
     {"Monday", 6},
     {"Tuesday", 5},
     {"Wednesday", 4},
@@ -24,8 +24,9 @@ const unordered_map<string, int> dayToBitMap = {
     {"Saturday", 1},
     {"Sunday", 0}
 };
+const string days_list[] = {"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
 
-const unordered_map<string,int> uni_map {
+unordered_map<string,int> uni_map {
     {"Plaksha",0},
     {"Ashoka",1},
     {"UIUC",2},
@@ -36,12 +37,63 @@ const unordered_map<string,int> uni_map {
     {"Purdue",7}
 };
 
-const unordered_map<string,int> major_map {
+unordered_map<string,int> major_map {
     {"Computer Engineering",0},
     {"RCPS",1},
     {"CSAI",2},
     {"Civil Engineering",4}
 };
+
+unordered_map<string, int> timeToBitMap = {
+    {"Morning",0}, {"Afternoon",1}, {"Evening",2}, {"Night",3}, {"Late Night",4}
+};
+const string time_list[] = {"Morning","Afternoon","Evening","Night","Late Night"};
+
+int timeToBit(const string& time) {
+    if (timeToBitMap.find(time) != timeToBitMap.end()) {
+        return timeToBitMap[time];
+    } else {
+        throw invalid_argument("time bad");
+    }
+}
+
+bitset<5> timesToBitset(const string& timesList) {
+    bitset<5> result;
+    istringstream stream(timesList);
+    string time;
+
+    // Extract times from the stream, trimming spaces
+    while (getline(stream, time, ',')) {
+        time.erase(time.find_last_not_of(" \t\n\r\f\v") + 1); // Trim whitespace
+        result.set(timeToBit(time)); // Set the bit for the corresponding time
+    }
+
+    return result;
+}
+
+int dayToBit(const string& day) {
+    if (dayToBitMap.find(day) != dayToBitMap.end()) {
+        return dayToBitMap[day];
+    } else {
+        throw invalid_argument("day no exis");
+    }
+}
+
+// Convert that into big fat bitset
+bitset<7> daysToBitset(const string& daysList) {
+    bitset<7> result;
+    istringstream stream(daysList);
+    string day;
+
+    // Taking text from the stream, removes commas, and puts in day
+    while (getline(stream, day, ',')) {
+        day.erase(day.find_last_not_of(" \t\n\r\f\v") + 1); // Trims whitespace
+        result.set(dayToBit(day)); // Set the correct bit position
+    }
+
+    return result; 
+}
+
 
 class User {
     protected:
@@ -61,8 +113,8 @@ class User {
         int mode; 
         int uniId;
         int majorId;
-        int studyDays;
-        int studyTimes;
+        bitset<7> studyDays;
+        bitset<5> studyTimes;
 
         //User Preferences
         int ageWeight;
@@ -77,8 +129,8 @@ class User {
         static int id_counter;  
 
         User(); // no values given
-        User(string, string, string, string, int, int, int, int, int, int, int); //only bio data
-        User(string, string, string, string, int, int, int, int, int, int, int, int, int, int, int, int, int, int); // all weights
+        User(string, string, string, string, int, int, int, int, int, bitset<7>, bitset<5>); //only bio data
+        User(string, string, string, string, int, int, int, int, int, bitset<7>, bitset<5>, int, int, int, int, int, int, int); // all weights
 
         string getName();
         string getPronouns();
@@ -90,8 +142,8 @@ class User {
         int getMode() const; 
         int getUniId() const;
         int getMajorId() const;
-        int getStudyDays() const;
-        int getStudyTimes() const;
+        bitset<7> getStudyDays() const;
+        bitset<5> getStudyTimes() const;
 
         int getAgeWeight() const;
         int getGenderWeight() const;
@@ -234,8 +286,6 @@ User::User() {
     mode = 0;
     uniId = 0;
     majorId = 0;
-    studyDays = 0;
-    studyTimes = 0;
 
     ageWeight = 0;
     genderWeight = 0;
@@ -246,7 +296,7 @@ User::User() {
     timesWeight = 0;
 }
 
-User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, int studyDays, int studyTimes) {
+User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes) {
     this->uid = ++id_counter;
     this->name = name;
     this->pronouns = pronouns;
@@ -271,7 +321,7 @@ User::User(string name, string password, string pronouns, string bio, int age, i
     timesWeight = 0;
 }
 
-User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, int studyDays, int studyTimes, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
+User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
     this->uid = ++id_counter;
     this->name = name;
     this->pronouns = pronouns;
@@ -306,8 +356,8 @@ int User::getGender() const {return this->gender;}
 int User::getMode() const {return this->mode;}
 int User::getUniId() const {return this->uniId;}
 int User::getMajorId() const {return this->majorId;}
-int User::getStudyDays() const {return this->studyDays;}
-int User::getStudyTimes() const {return this->studyTimes;}
+bitset<7> User::getStudyDays() const {return this->studyDays;}
+bitset<5> User::getStudyTimes() const {return this->studyTimes;}
 
 int User::getAgeWeight() const {return this->ageWeight;}
 int User::getGenderWeight() const {return this->genderWeight;}
@@ -319,7 +369,9 @@ int User::getTimesWeight() const {return this->timesWeight;}
 
 User User::registerUser() {
     string name, password, pronouns, bio, inp;
-    int age, gender, mode, uniId, majorId, studyDays, studyTimes;
+    int age, gender, mode, uniId, majorId;
+    bitset<5> studyTimes;
+    bitset<7> studyDays;
 
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -336,10 +388,17 @@ User User::registerUser() {
     cout << "\nEnter bio: ";
     getline(cin, bio);
 
-    cout << "\nEnter age: ";
-    while (!(cin >> age)) {
-        cout << "Invalid input. Please enter a valid age: ";
+    age = -1;
+    while (age < 0) {
+        cout << "\nEnter age: ";
+        cin >> age;
+        if (age < 0) {
+            cout << "Invalid input. Please enter a valid age: ";
+        }
     }
+
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     gender = -1;
     while (gender == -1) {
@@ -371,20 +430,49 @@ User User::registerUser() {
     //Input Sanitation
     uniId = uni_map[inp];
 
-    cout << "\nEnter major ID: ";
+    cout << "\nEnter Major Name: ";
     cin >> inp;
     //Input Sanitation
     majorId = major_map[inp];
 
     cout << "\nEnter study days per week: ";
-    // for (unordered_map<string,int>::iterator = )
+    inp = "";
+    for (int i = 0; i < 7; i++) {
+        char response;
 
-    cout << "\nEnter study times per week: ";
-    while (!(cin >> studyTimes)) {
-        cout << "Invalid input. Please enter a valid number of study times: ";
+        cout << "Do you study on " << days_list[i] << "? (y/n): ";
+        cin >> response;
+
+        if (response == 'y' || response == 'Y') {
+            if (!inp.empty()) {
+                inp += ",";
+            }
+            inp += days_list[i];
+        }
     }
+    cout << inp;
+    studyDays = daysToBitset(inp);
+    
+
+    cout << "\nEnter study times per day: ";
+    inp = "";
+    for (int i = 0; i < 5; i++) {
+        char response;
+
+        cout << "Do you study during the " << time_list[i] << "? (y/n): ";
+        cin >> response;
+
+        if (response == 'y' || response == 'Y') {
+            if (!inp.empty()) {
+                inp += ",";
+            }
+            inp += time_list[i];
+        }
+    }
+    studyTimes = timesToBitset(inp);
 
     User newUser(name, password, pronouns, bio, age, gender, mode, uniId, majorId, studyDays, studyTimes);
+    cout << newUser.toString();
     newUser.writeToCSV();
     return newUser;
 }
@@ -438,14 +526,14 @@ string User::toString() {
     userString += "Mode: " + to_string(mode) + "\n";
     userString += "Uni ID: " + to_string(uniId) + "\n";
     userString += "Major ID: " + to_string(majorId) + "\n";
-    userString += "Study Days: " + to_string(studyDays) + "\n";
-    userString += "Study Times: " + to_string(studyTimes) + "\n";
+    userString += "Study Days: " + studyDays.to_string() + "\n";
+    userString += "Study Times: " + studyTimes.to_string() + "\n";
     return userString;
 }
 
 void User::swipeLeft() {};
 void User::swipeRight() {};
-User User::login() {};
+User User::login() {return User();};
 void User::logout() {};
 
 //populate the csv with random data
@@ -514,57 +602,57 @@ void depopulateCsv() {
     file2.close();
 }
 
-int calculateCompactibilityScore(const User &user1, const User &user2) {};
-int calculateCompactibilityScore(const User &user1, const Centroid &centroid) {};
+int calculateCompactibilityScore(const User &user1, const User &user2) {return 0;};
+int calculateCompactibilityScore(const User &user1, const Centroid &centroid) {return 0;};
 
 
 //K MEANS
-void clusterize(const vector<User>& users, const vector<Centroid> centroids, vector<int>& clusters) {
-    for (int i = 0; i < users.size(); i++) {
-        int minScore = clusters.front();
-        int closestCluster = 0;
-        for (int j = 1; j < centroids.size(); j++) {
-            int score = calculateCompactibilityScore(users[i],centroids[j]);
-            if (score < minScore) {
-                minScore = score;
-                closestCluster = j;
-            }
-        }
-        clusters[i] = closestCluster;
-    }
-}
+// void clusterize(const vector<User>& users, const vector<Centroid> centroids, vector<int>& clusters) {
+//     for (int i = 0; i < users.size(); i++) {
+//         int minScore = clusters.front();
+//         int closestCluster = 0;
+//         for (int j = 1; j < centroids.size(); j++) {
+//             int score = calculateCompactibilityScore(users[i],centroids[j]);
+//             if (score < minScore) {
+//                 minScore = score;
+//                 closestCluster = j;
+//             }
+//         }
+//         clusters[i] = closestCluster;
+//     }
+// }
 
-void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, const vector<int>& clusters) {
-    vector<vector<double>> weightSum(centroids.size(), vector<double>(14, 0));
-    vector<int> count(centroids.size(),0);
+// void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, const vector<int>& clusters) {
+//     vector<vector<double>> weightSum(centroids.size(), vector<double>(14, 0));
+//     vector<int> count(centroids.size(),0);
 
-    for (int i = 0; i < users.size(); ++i) {
-        weightSum[clusters[i]][0] += users[i].getAgeWeight();
-        weightSum[clusters[i]][1] += users[i].getGenderWeight();
-        weightSum[clusters[i]][2] += users[i].getModeWeight();
-        weightSum[clusters[i]][3] += users[i].getUniWeight();
-        weightSum[clusters[i]][4] += users[i].getMajorWeight();
-        weightSum[clusters[i]][5] += users[i].getDaysWeight();
-        weightSum[clusters[i]][6] += users[i].getTimesWeight();
+//     for (int i = 0; i < users.size(); ++i) {
+//         weightSum[clusters[i]][0] += users[i].getAgeWeight();
+//         weightSum[clusters[i]][1] += users[i].getGenderWeight();
+//         weightSum[clusters[i]][2] += users[i].getModeWeight();
+//         weightSum[clusters[i]][3] += users[i].getUniWeight();
+//         weightSum[clusters[i]][4] += users[i].getMajorWeight();
+//         weightSum[clusters[i]][5] += users[i].getDaysWeight();
+//         weightSum[clusters[i]][6] += users[i].getTimesWeight();
 
-        weightSum[clusters[i]][7] += users[i].getAge();
-        weightSum[clusters[i]][8] += users[i].getGender();
-        weightSum[clusters[i]][9] += users[i].getMode();
-        weightSum[clusters[i]][10] += users[i].getUniId();
-        weightSum[clusters[i]][11] += users[i].getMajorId();
-        weightSum[clusters[i]][12] += users[i].getStudyDays();
-        weightSum[clusters[i]][13] += users[i].getStudyTimes();
+//         weightSum[clusters[i]][7] += users[i].getAge();
+//         weightSum[clusters[i]][8] += users[i].getGender();
+//         weightSum[clusters[i]][9] += users[i].getMode();
+//         weightSum[clusters[i]][10] += users[i].getUniId();
+//         weightSum[clusters[i]][11] += users[i].getMajorId();
+//         weightSum[clusters[i]][12] += users[i].getStudyDays();
+//         weightSum[clusters[i]][13] += users[i].getStudyTimes();
 
-        count[clusters[i]]++;
-    } 
-}
+//         count[clusters[i]]++;
+//     } 
+// }
 
 char getUserChoice(bool isLoggedIn) {
     char choice;
     if (isLoggedIn) 
         cout << "Enter 'L' to reject or 'R' to match. Enter 'H' for further help : ";
     else
-        cout << "Enter 'L' to login or 'R' to register.";
+        cout << "Enter 'L' to login or 'R' to register: ";
 
     cin >> choice;
     return choice;
