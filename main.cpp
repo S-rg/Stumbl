@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <vector>
 #include <cstdlib>
+#include <limits>
+
 
 using namespace std;
 
@@ -21,6 +23,24 @@ const unordered_map<string, int> dayToBitMap = {
     {"Friday", 2},
     {"Saturday", 1},
     {"Sunday", 0}
+};
+
+const unordered_map<string,int> uni_map {
+    {"Plaksha",0},
+    {"Ashoka",1},
+    {"UIUC",2},
+    {"UCLA",3},
+    {"LSR",4},
+    {"SRCC",5},
+    {"NIFT",6},
+    {"Purdue",7}
+};
+
+const unordered_map<string,int> major_map {
+    {"Computer Engineering",0},
+    {"RCPS",1},
+    {"CSAI",2},
+    {"Civil Engineering",4}
 };
 
 class User {
@@ -298,35 +318,74 @@ int User::getDaysWeight() const {return this->daysWeight;}
 int User::getTimesWeight() const {return this->timesWeight;}
 
 User User::registerUser() {
-    string name, password, pronouns, bio;
+    string name, password, pronouns, bio, inp;
     int age, gender, mode, uniId, majorId, studyDays, studyTimes;
 
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     cout << "Enter name: ";
-    cin >> name;
+    getline(cin, name);
 
     cout << "\nEnter password: ";
-    cin >> password;
+    getline(cin,password);
+
     cout << "\nEnter pronouns: ";
-    cin >> pronouns;
+    getline(cin, pronouns);
+
     cout << "\nEnter bio: ";
-    cin >> bio;
+    getline(cin, bio);
+
     cout << "\nEnter age: ";
-    cin >> age;
-    cout << "\nEnter gender";
-    cin >> gender;
-    cout << "\nEnter mode: ";
-    cin >> mode;
-    cout << "\nEnter university ID: ";
-    cin >> uniId;
+    while (!(cin >> age)) {
+        cout << "Invalid input. Please enter a valid age: ";
+    }
+
+    gender = -1;
+    while (gender == -1) {
+        cout << "\nEnter gender (M/F/NB): ";
+        cin >> inp;
+        //tolower(inp);
+        if (inp == "m" || inp == "male") { 
+            gender = 0; 
+        } else if (inp == "f" || inp == "female") {
+            gender = 1;
+        } else if (inp == "nb" || inp == "non-binary") {
+            gender = 2;
+        } else {cout << "Invalid input. Please enter M, F, or NB.\n";}
+    }
+
+    mode = -1;
+    while (mode == -1) {
+        cout << "\nEnter mode (Online/Offline): ";
+        cin >> inp;
+        //tolower(inp);
+        if (inp == "online" || inp == "on") {mode = 0; }
+        else if (inp == "offline" || inp == "off") {mode = 1;}
+        else {cout << "Invalid input. Please enter Online or Offline.\n";}
+    }
+
+
+    cout << "\nEnter University Name: ";
+    cin >> inp;
+    //Input Sanitation
+    uniId = uni_map[inp];
+
     cout << "\nEnter major ID: ";
-    cin >> majorId;
+    cin >> inp;
+    //Input Sanitation
+    majorId = major_map[inp];
+
     cout << "\nEnter study days per week: ";
-    cin >> studyDays;
+    // for (unordered_map<string,int>::iterator = )
+
     cout << "\nEnter study times per week: ";
-    cin >> studyTimes;
+    while (!(cin >> studyTimes)) {
+        cout << "Invalid input. Please enter a valid number of study times: ";
+    }
 
-    User newUser(name,password,pronouns,bio,age,gender,mode,uniId,majorId,studyDays,studyTimes);
-
+    User newUser(name, password, pronouns, bio, age, gender, mode, uniId, majorId, studyDays, studyTimes);
+    newUser.writeToCSV();
     return newUser;
 }
 
@@ -383,6 +442,11 @@ string User::toString() {
     userString += "Study Times: " + to_string(studyTimes) + "\n";
     return userString;
 }
+
+void User::swipeLeft() {};
+void User::swipeRight() {};
+User User::login() {};
+void User::logout() {};
 
 //populate the csv with random data
 void populateCsv(int num) {
@@ -450,8 +514,8 @@ void depopulateCsv() {
     file2.close();
 }
 
-int calculateCompactibilityScore(const User &user1, const User &user2);
-int calculateCompactibilityScore(const User &user1, const Centroid &centroid);
+int calculateCompactibilityScore(const User &user1, const User &user2) {};
+int calculateCompactibilityScore(const User &user1, const Centroid &centroid) {};
 
 
 //K MEANS
@@ -523,7 +587,7 @@ int main() {
     bool isLoggedIn = false;
     User* curr;
     UserHeap userheap;
-    unordered_map swipedMap;
+    unordered_map<int,bool> swipedMap;
 
     if (isLoggedIn) {
         bool done = false;
@@ -566,17 +630,19 @@ int main() {
         while (true) {
             switch (getUserChoice(false))
             {
-            case 'L':
-                curr = &User::login;
+            {case 'L':
+                User temp = User::login();
+                curr = &temp;
                 done = true;
                 isLoggedIn = true;
-                break;
+                break;}
             
-            case 'R':
-                curr = &User::registerUser();
+            {case 'R':
+                User temp = User::registerUser();
+                curr = &temp;
                 done = true;
                 isLoggedIn = true;
-                break;
+                break;}
 
             default:
                 cout << "Input Invalid";
