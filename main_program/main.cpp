@@ -29,6 +29,12 @@ unordered_map<string, int> dayToBitMap = {
 };
 const string days_list[] = {"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
 
+unordered_map<string, int> timeToBitMap = {
+    {"Morning",0}, {"Afternoon",1}, {"Evening",2}, {"Night",3}, {"Late Night",4}
+};
+const string time_list[] = {"Morning","Afternoon","Evening","Night","Late Night"};
+
+
 unordered_map<string,int> uni_map {
     {"Plaksha",0},
     {"Ashoka",1},
@@ -47,10 +53,7 @@ unordered_map<string,int> major_map {
     {"Civil Engineering",4}
 };
 
-unordered_map<string, int> timeToBitMap = {
-    {"Morning",0}, {"Afternoon",1}, {"Evening",2}, {"Night",3}, {"Late Night",4}
-};
-const string time_list[] = {"Morning","Afternoon","Evening","Night","Late Night"};
+
 
 int timeToBit(const string& time) {
     if (timeToBitMap.find(time) != timeToBitMap.end()) {
@@ -133,11 +136,11 @@ class User {
         User(); // no values given
         User(string, string, string, string, int, int, int, int, int, bitset<7>, bitset<5>); //only bio data
         User(string, string, string, string, int, int, int, int, int, bitset<7>, bitset<5>, int, int, int, int, int, int, int); // all weights
+        User(string, string, string, int, int, int, int, int, bitset<7>, bitset<5>, int, int, int, int, int, int, int); //passwordless
 
         string getName();
         string getPronouns();
         string getBio();
-        int getId();
 
         int getAge() const;
         int getGender() const;
@@ -155,7 +158,7 @@ class User {
         int getDaysWeight() const;
         int getTimesWeight() const;
 
-        static User loadUser(string, string);
+        static User loadUser(string);
         static User login();
         void logout();
         static User registerUser();
@@ -169,7 +172,33 @@ class User {
 
 class Centroid : public User {
     public:
-        Centroid() : User() {};
+        Centroid() : User() {
+            name = "";
+            pronouns = "";
+            bio = "";
+            password = "";
+
+            age = 1 + rand() % 100;
+            gender = rand() % 3;
+            mode = rand() % 2;
+            uniId = rand() % 10;
+            majorId = rand() % 10;
+            for (int j = 0; j < 7; ++j) {
+                studyDays[j] = rand() % 2;
+            }
+            for (int j = 0; j < 5; ++j) {
+                studyTimes[j] = rand() % 2;
+            }
+            ageWeight = rand() % 10; 
+            genderWeight = rand() % 10;
+            modeWeight = rand() % 10;
+            uniWeight = rand() % 10;
+            majorWeight = rand() % 10;
+            daysWeight = rand() % 10;
+            timesWeight = rand() % 10;
+        };
+
+        void setValues(int, int, int, int, int, bitset<7>, bitset<5>, int, int, int, int, int, int, int);
 };
 
 class Cluster {
@@ -328,6 +357,30 @@ User::User(string name, string password, string pronouns, string bio, int age, i
     this->bio = bio;
 
     this->password = password;
+
+    this->age = age;
+    this->gender = gender;
+    this->mode = mode;
+    this->uniId = uniId;
+    this->majorId = majorId;
+    this->studyDays = studyDays;
+    this->studyTimes = studyTimes;
+
+    this->ageWeight = ageWeight;
+    this->genderWeight = genderWeight;
+    this->modeWeight = modeWeight;
+    this->uniWeight = uniWeight;
+    this->majorWeight = majorWeight;
+    this->daysWeight = daysWeight;
+    this->timesWeight = timesWeight;
+};
+
+User::User(string name, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
+    this->name = name;
+    this->pronouns = pronouns;
+    this->bio = bio;
+
+    this->password = "";
 
     this->age = age;
     this->gender = gender;
@@ -533,7 +586,7 @@ string User::toString() {
 void User::swipeLeft() {};
 void User::swipeRight() {};
 
-User User::loadUser(string username, string password) {
+User User::loadUser(string username) {
     ifstream file(userDataFile);
         if (file.is_open()) {
             string line;
@@ -549,7 +602,7 @@ User User::loadUser(string username, string password) {
                         output.push_back(temp);
                     }
                     file.close();
-                    return User(tempUsername, password, output[0], output[1], stoi(output[2]), stoi(output[3]), stoi(output[4]), stoi(output[5]), stoi(output[6]), bitset<7>(output[7]), bitset<5>(output[8]), stoi(output[9]), stoi(output[10]), stoi(output[11]), stoi(output[12]), stoi(output[13]),stoi(output[14]),stoi(output[15]));
+                    return User(tempUsername, output[0], output[1], stoi(output[2]), stoi(output[3]), stoi(output[4]), stoi(output[5]), stoi(output[6]), bitset<7>(output[7]), bitset<5>(output[8]), stoi(output[9]), stoi(output[10]), stoi(output[11]), stoi(output[12]), stoi(output[13]),stoi(output[14]),stoi(output[15]));
                 }
             }
             cout << "User not found in file." << endl;
@@ -593,7 +646,7 @@ User User::login() {
                 if (tempPassword == inputPassword) {
                     // Username and password matched, return the user
                     file.close();
-                    User a = loadUser(tempUsername, tempPassword);
+                    User a = loadUser(tempUsername);
                     cout << a.toString();
                     return a;
                 }
@@ -608,6 +661,25 @@ User User::login() {
 }
 
 void User::logout() {};
+
+void Centroid::setValues(int age, int gender, int mode, int uniId, int majorId, bitset<7> days, bitset<5> times, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
+    this->age = age;
+    this->gender = gender;
+    this->mode = mode;
+    this->uniId = uniId;
+    this->majorId = majorId;
+    this->studyDays = days;
+    this->studyTimes = times;
+
+    this->ageWeight = ageWeight;
+    this->genderWeight = genderWeight;
+    this->modeWeight = modeWeight;
+    this->uniWeight = uniWeight;
+    this->majorWeight = majorWeight;
+    this->daysWeight = daysWeight;
+    this->timesWeight = timesWeight;
+}
+
 
 //populate the csv with random data
 void populateCsv(int num) {
@@ -706,49 +778,93 @@ int calculateCompactibilityScore(const User &user1, const User &user2) {
     return ageScore + genderScore + modeScore + uniScore + majorScore + daysOfWeekScore + studyTimeScore;
 }
 
-int calculateCompactibilityScore(const User &user1, const Centroid &centroid) {return 0;};
+int calculateCompactibilityScore(const User &user1, const Centroid &centroid) {
+    int ageScore = findAgeScore(user1.getAge(), centroid.getAge(), user1.getAgeWeight());
+    int genderScore = findGenderScore(user1.getGender(), centroid.getGender(), user1.getGenderWeight());
+    int modeScore = findModeScore(user1.getMode(), centroid.getMode(), user1.getModeWeight());
+    int uniScore = findUniScore(user1.getUniId(), centroid.getUniId(), user1.getUniWeight());
+    int majorScore = findMajorScore(user1.getMajorId(), centroid.getMajorId(), user1.getMajorWeight());
+    int daysOfWeekScore = findDaysOfWeekScore(user1.getStudyDays(), centroid.getStudyDays(), user1.getDaysWeight());
+    int studyTimeScore = findStudyTimeScore(user1.getStudyTimes(), centroid.getStudyTimes(), user1.getTimesWeight());
+
+    return ageScore + genderScore + modeScore + uniScore + majorScore + daysOfWeekScore + studyTimeScore;
+};
 
 
 //K MEANS
-// void clusterize(const vector<User>& users, const vector<Centroid> centroids, vector<int>& clusters) {
-//     for (int i = 0; i < users.size(); i++) {
-//         int minScore = clusters.front();
-//         int closestCluster = 0;
-//         for (int j = 1; j < centroids.size(); j++) {
-//             int score = calculateCompactibilityScore(users[i],centroids[j]);
-//             if (score < minScore) {
-//                 minScore = score;
-//                 closestCluster = j;
-//             }
-//         }
-//         clusters[i] = closestCluster;
-//     }
-// }
+void clusterize(const vector<User>& users, const vector<Centroid> centroids, vector<int>& clusters) {
+    for (int i = 0; i < users.size(); i++) {
+        int minScore = clusters.front();
+        int closestCluster = 0;
+        for (int j = 1; j < centroids.size(); j++) {
+            int score = calculateCompactibilityScore(users[i],centroids[j]);
+            if (score < minScore) {
+                minScore = score;
+                closestCluster = j;
+            }
+        }
+        clusters[i] = closestCluster;
+    }
+}
 
-// void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, const vector<int>& clusters) {
-//     vector<vector<double>> weightSum(centroids.size(), vector<double>(14, 0));
-//     vector<int> count(centroids.size(),0);
+void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, const vector<int>& clusters) {
+    vector<vector<double>> weightSum(centroids.size(), vector<double>(14, 0));
+    vector<int> count(centroids.size(),0);
 
-//     for (int i = 0; i < users.size(); ++i) {
-//         weightSum[clusters[i]][0] += users[i].getAgeWeight();
-//         weightSum[clusters[i]][1] += users[i].getGenderWeight();
-//         weightSum[clusters[i]][2] += users[i].getModeWeight();
-//         weightSum[clusters[i]][3] += users[i].getUniWeight();
-//         weightSum[clusters[i]][4] += users[i].getMajorWeight();
-//         weightSum[clusters[i]][5] += users[i].getDaysWeight();
-//         weightSum[clusters[i]][6] += users[i].getTimesWeight();
+    for (int i = 0; i < users.size(); ++i) {
+        weightSum[clusters[i]][0] += users[i].getAgeWeight();
+        weightSum[clusters[i]][1] += users[i].getGenderWeight();
+        weightSum[clusters[i]][2] += users[i].getModeWeight();
+        weightSum[clusters[i]][3] += users[i].getUniWeight();
+        weightSum[clusters[i]][4] += users[i].getMajorWeight();
+        weightSum[clusters[i]][5] += users[i].getDaysWeight();
+        weightSum[clusters[i]][6] += users[i].getTimesWeight();
 
-//         weightSum[clusters[i]][7] += users[i].getAge();
-//         weightSum[clusters[i]][8] += users[i].getGender();
-//         weightSum[clusters[i]][9] += users[i].getMode();
-//         weightSum[clusters[i]][10] += users[i].getUniId();
-//         weightSum[clusters[i]][11] += users[i].getMajorId();
-//         weightSum[clusters[i]][12] += users[i].getStudyDays();
-//         weightSum[clusters[i]][13] += users[i].getStudyTimes();
+        weightSum[clusters[i]][7] += users[i].getAge();
+        weightSum[clusters[i]][8] += users[i].getGender();
+        weightSum[clusters[i]][9] += users[i].getMode();
+        weightSum[clusters[i]][10] += users[i].getUniId();
+        weightSum[clusters[i]][11] += users[i].getMajorId();
+        weightSum[clusters[i]][12] += users[i].getStudyDays().to_ulong();
+        weightSum[clusters[i]][13] += users[i].getStudyTimes().to_ulong();
 
-//         count[clusters[i]]++;
-//     } 
-// }
+        count[clusters[i]]++;
+    }
+
+    for (int i = 0; i < centroids.size(); ++i) {
+        if (count[i] > 0) {
+            for (int k = 0; k < 14; ++k) {
+                weightSum[i][k] /= count[i];
+            }
+            centroids[i].setValues(weightSum[i][0],weightSum[i][1],weightSum[i][2],weightSum[i][3],weightSum[i][4],weightSum[i][5],weightSum[i][6],weightSum[i][7],weightSum[i][8],weightSum[i][9],weightSum[i][10],weightSum[i][11],weightSum[i][12],weightSum[i][13]);
+        }
+    }
+}
+
+vector<Centroid> initializeCentroids(int k) {
+    vector<Centroid> centroids;
+    for (int i = 0; i < k; ++i) {
+        centroids.push_back(Centroid());
+    }
+    return centroids;
+}
+
+vector<int> kmeans(vector<User>& users, int k, int maxIter) {
+    vector<Centroid> centroids = initializeCentroids(k);
+    vector<int> clusters(users.size(), -1);
+
+    int iter = 0;
+    bool converged = false;
+
+    while (iter < maxIter && !converged) {
+        clusterize(users, centroids, clusters);
+        updateCentroids(users, centroids, clusters);
+
+        // convergence check
+    }
+
+    return clusters;
+}
 
 char getUserChoice(bool isLoggedIn) {
     char choice;
