@@ -13,7 +13,10 @@ using namespace std;
 
 const string userDataFile = "userData.csv";
 const string passwordFile = "password.csv";
-const string swipingFile = "swiping.csv";
+const string lswipeFile = "left_swipe.csv";
+const string rswipeFile = "right_swipe.csv";
+const string uni_list = "uni_list.csv";
+const string major_list = "major_list.csv";
 
 unordered_map<string, int> dayToBitMap = {
     {"Monday", 6},
@@ -162,6 +165,34 @@ class User {
         void swipeRight();
         string toString();
         void getUserSwipes();
+
+        int findAgeScore(int myAge, int otherAge) { 
+            return abs(myAge - otherAge) / ageWeight;
+        }
+
+        int findGenderScore(const int& myGender, const int& otherGender) {
+            return (myGender == otherGender) ? genderWeight : 0;
+        }
+
+        int findModeScore(const int& myMode, const int& otherMode) {
+            return (myMode == otherMode) ? modeWeight : 0;
+        }
+
+        int findUniScore(const int& myUni, const int& otherUni) {
+            return (myUni == otherUni) ? uniWeight : 0;
+        }
+
+        int findMajorScore(const int& myMajor, const int& otherMajor) {
+            return (myMajor == otherMajor) ? majorWeight : 0;
+        }
+
+        int findDaysOfWeekScore(bitset<7> myDays, bitset<7> otherDays) {
+            return (myDays & otherDays).count() * daysWeight / 7 ;
+        }
+
+        int findStudyTimeScore(bitset<24> myTime, bitset<24> otherTime) {
+            return (myTime & otherTime).count() * timesWeight / 24;
+        }
 };
 
 class Centroid : public User {
