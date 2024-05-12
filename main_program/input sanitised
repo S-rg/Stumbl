@@ -75,3 +75,16 @@ User User::registerUser() {
         cin >> response;
 
         if (response == 'y' || response == 'Y') {
+
+            if (!inp.empty()) {
+                inp += ",";
+            }
+            inp += time_list[i];
+        }
+    }
+    studyTimes = timesToBitset(inp);
+
+    User newUser(name, password, pronouns, bio, age, gender, mode, uniId, majorId, studyDays, studyTimes);
+    newUser.writeToCSV();
+    return newUser;
+}
