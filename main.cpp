@@ -102,7 +102,6 @@ class User {
         string name;
         string pronouns;
         string bio;
-        int uid;
 
         //secret secret
         string password;
@@ -277,7 +276,6 @@ class UserHeap{
 int User::id_counter = 0;
 
 User::User() {
-    uid = ++id_counter;
     name = "Test User " + to_string(id_counter);
     pronouns = "Rather Not Say";
     bio = "";
@@ -298,7 +296,6 @@ User::User() {
 }
 
 User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes) {
-    this->uid = ++id_counter;
     this->name = name;
     this->pronouns = pronouns;
     this->bio = bio;
@@ -323,7 +320,6 @@ User::User(string name, string password, string pronouns, string bio, int age, i
 }
 
 User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
-    this->uid = ++id_counter;
     this->name = name;
     this->pronouns = pronouns;
     this->bio = bio;
@@ -350,7 +346,6 @@ User::User(string name, string password, string pronouns, string bio, int age, i
 string User::getName() {return this->name;}
 string User::getPronouns() {return this->pronouns;}
 string User::getBio() {return this->bio;}
-int User::getId() {return this->uid;}
 
 int User::getAge() const {return this->age;}
 int User::getGender() const {return this->gender;}
@@ -482,7 +477,6 @@ void User::writeToCSV() {
         cerr << "Error: Could not open file " << userDataFile << " for writing." << endl;
         return;
     }
-    file << uid << ",";
     file << name << ",";
     file << pronouns << ",";
     file << bio << ",";
@@ -511,7 +505,6 @@ void User::writeToCSV() {
         cerr << "Error: Could not open file " << passwordFile << " for writing." << endl;
         return;
     }
-    file3 << uid << ",";
     file3 << name << ",";
     file3 << password << ",";
     file3 << '\n';
@@ -542,7 +535,6 @@ User User::loadUser(string username, string password) {
             while (getline(file, line)) {
                 stringstream ss(line);
                 string tempUsername,temp;
-                getline(ss, temp, ',');
                 getline(ss, tempUsername, ','); 
 
                 if (tempUsername == username) {
@@ -582,7 +574,6 @@ User User::login() {
             while (getline(file, line)) {
                 stringstream ss(line);
                 string tempUsername, tempPassword, temp;
-                getline(ss, temp, ',');
                 getline(ss, tempUsername, ','); 
                 getline(ss, tempPassword, ','); 
 
