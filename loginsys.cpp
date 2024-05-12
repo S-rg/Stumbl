@@ -93,6 +93,8 @@ void registerUser(UserData users[], int &numUsers) {
     string username, password;
     cout << "Enter username: ";
     cin >> username;
+    transform(username.begin(), username.end(), username.begin(), ::tolower); // Convert input username to lowercase
+
 
     // Check if username already exists
     for (int i = 0; i < numUsers; i++) {
