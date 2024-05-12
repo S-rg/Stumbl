@@ -1,42 +1,48 @@
 #include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <ctime>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
-class Swipe {
-private:
-    unordered_map<string, int> swipeCount;
-
+class User {
 public:
-    void recordSwipe(const string& code) {
-        if (swipeCount.find(code) != swipeCount.end()) {
-            swipeCount[code]++;
-        } else {
-            swipeCount[code] = 1;
-        }
+    void swipeLeft() {
+        recordSwipe("swipe_left.csv");
     }
 
-    int getSwipeCount(const string& code) {
-        if (swipeCount.find(code) != swipeCount.end()) {
-            return swipeCount[code];
-        } else {
-            return 0;
+    void swipeRight() {
+        recordSwipe("swipe_right.csv");
+    }
+
+private:
+    void recordSwipe(const string& filename) {
+        // Open the CSV file in append mode
+        ofstream file(filename, ios::app);
+        
+        // Check if the file is opened successfully
+        if (!file.is_open()) {
+            cout << "Error: Unable to open file " << filename << endl;
+            return;
         }
+        
+        // Write the user's ID and timestamp to the file
+        file << getId() << "," << getCurrentTimestamp() << endl;
+        
+        // Close the file
+        file.close();
+    }
+
+    int getId() {
+        // Function to get the user's ID
+        // You can implement this based on your user ID logic
+        // For demonstration, I'll return a dummy ID
+        return 123; // Replace with actual user ID logic
+    }
+
+    string getCurrentTimestamp() {
+        // Function to get the current timestamp
+        // You can implement this based on your platform or use libraries like <ctime>
+        // For demonstration, I'll return a dummy timestamp
+        return "2024-05-12 10:30:00"; // Replace with actual timestamp logic
     }
 };
-
-int main() {
-    Swipe swipeTracker;
-
-    swipeTracker.recordSwipe("A123");
-    swipeTracker.recordSwipe("B456");
-    swipeTracker.recordSwipe("A123");
-    swipeTracker.recordSwipe("A123");
-
-    cout << "Swipe count for A123: " << swipeTracker.getSwipeCount("A123") << endl;
-    cout << "Swipe count for B456: " << swipeTracker.getSwipeCount("B456") << endl;
-
-    return 0;
-}
