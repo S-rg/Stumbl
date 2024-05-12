@@ -40,9 +40,7 @@ private:
     }
 
     string getCurrentTimestamp() {
-        // Function to get the current timestamp
-        // You can implement this based on your platform or use libraries like <ctime>
-        // For demonstration, I'll return a dummy timestamp
+
         return "2024-05-12 10:30:00"; // Replace with actual timestamp logic
     }
 };
