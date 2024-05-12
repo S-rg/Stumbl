@@ -165,34 +165,6 @@ class User {
         void swipeRight();
         string toString();
         void getUserSwipes();
-
-        int findAgeScore(int myAge, int otherAge) { 
-            return abs(myAge - otherAge) / ageWeight;
-        }
-
-        int findGenderScore(const int& myGender, const int& otherGender) {
-            return (myGender == otherGender) ? genderWeight : 0;
-        }
-
-        int findModeScore(const int& myMode, const int& otherMode) {
-            return (myMode == otherMode) ? modeWeight : 0;
-        }
-
-        int findUniScore(const int& myUni, const int& otherUni) {
-            return (myUni == otherUni) ? uniWeight : 0;
-        }
-
-        int findMajorScore(const int& myMajor, const int& otherMajor) {
-            return (myMajor == otherMajor) ? majorWeight : 0;
-        }
-
-        int findDaysOfWeekScore(bitset<7> myDays, bitset<7> otherDays) {
-            return (myDays & otherDays).count() * daysWeight / 7 ;
-        }
-
-        int findStudyTimeScore(bitset<24> myTime, bitset<24> otherTime) {
-            return (myTime & otherTime).count() * timesWeight / 24;
-        }
 };
 
 class Centroid : public User {
@@ -410,9 +382,11 @@ User User::registerUser() {
     getline(cin,password);
 
     cout << "\nEnter pronouns: ";
+    //Input Sanitation
     getline(cin, pronouns);
 
     cout << "\nEnter bio: ";
+    //Input Sanitation
     getline(cin, bio);
 
     age = -1;
@@ -692,7 +666,46 @@ void depopulateCsv() {
     file2.close();
 }
 
-int calculateCompactibilityScore(const User &user1, const User &user2) {return 0;};
+int findAgeScore(int myAge, int otherAge, int ageWeight) { 
+    return abs(myAge - otherAge) / ageWeight;
+}
+
+int findGenderScore(const int& myGender, const int& otherGender, int genderWeight) {
+    return (myGender == otherGender) ? genderWeight : 0;
+}
+
+int findModeScore(const int& myMode, const int& otherMode, int modeWeight) {
+    return (myMode == otherMode) ? modeWeight : 0;
+}
+
+int findUniScore(const int& myUni, const int& otherUni, int uniWeight) {
+    return (myUni == otherUni) ? uniWeight : 0;
+}
+
+int findMajorScore(const int& myMajor, const int& otherMajor, int majorWeight) {
+    return (myMajor == otherMajor) ? majorWeight : 0;
+}
+
+int findDaysOfWeekScore(bitset<7> myDays, bitset<7> otherDays, int daysWeight) {
+    return (myDays & otherDays).count() * daysWeight / 7 ;
+}
+
+int findStudyTimeScore(bitset<5> myTime, bitset<5> otherTime, int timesWeight) {
+    return (myTime & otherTime).count() * timesWeight / 5;
+}
+
+int calculateCompactibilityScore(const User &user1, const User &user2) {
+    int ageScore = findAgeScore(user1.getAge(), user2.getAge(), user1.getAgeWeight());
+    int genderScore = findGenderScore(user1.getGender(), user2.getGender(), user1.getGenderWeight());
+    int modeScore = findModeScore(user1.getMode(), user2.getMode(), user1.getModeWeight());
+    int uniScore = findUniScore(user1.getUniId(), user2.getUniId(), user1.getUniWeight());
+    int majorScore = findMajorScore(user1.getMajorId(), user2.getMajorId(), user1.getMajorWeight());
+    int daysOfWeekScore = findDaysOfWeekScore(user1.getStudyDays(), user2.getStudyDays(), user1.getDaysWeight());
+    int studyTimeScore = findStudyTimeScore(user1.getStudyTimes(), user2.getStudyTimes(), user1.getTimesWeight());
+
+    return ageScore + genderScore + modeScore + uniScore + majorScore + daysOfWeekScore + studyTimeScore;
+}
+
 int calculateCompactibilityScore(const User &user1, const Centroid &centroid) {return 0;};
 
 
