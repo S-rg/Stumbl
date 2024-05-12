@@ -646,49 +646,40 @@ void populateCsv(int num) {
     int modes[] = {0, 1};
     int uniIds[] = {1, 2, 3, 4, 5};
     int majorIds[] = {101, 102, 103, 104, 105};
-    int studyDays[] = {3, 4, 5};
-    int studyTimes[] = {1, 2, 3, 4};
+    
+    std::bitset<7> studyDaysBitset;
+    std::bitset<5> studyTimesBitset;
 
-    int randomNameIndex = rand() % 5;
-    int randomPasswordIndex = rand() % 5;
-    int randomPronounsIndex = rand() % 3;
-    int randomBioIndex = rand() % 4;
-    int randomAgeIndex = rand() % 5;
-    int randomGenderIndex = rand() % 3;
-    int randomModeIndex = rand() % 2;
-    int randomUniIdIndex = rand() % 5;
-    int randomMajorIdIndex = rand() % 5;
-    int randomStudyDaysIndex = rand() % 3;
-    int randomStudyTimesIndex = rand() % 4;
-    int randomAgeWeight = rand() % 10 + 1; 
-    int randomGenderWeight = rand() % 10 + 1;
-    int randomModeWeight = rand() % 10 + 1;
-    int randomUniWeight = rand() % 10 + 1;
-    int randomMajorWeight = rand() % 10 + 1;
-    int randomDaysWeight = rand() % 10 + 1;
-    int randomTimesWeight = rand() % 10 + 1;
+    int randomNameIndex, randomPasswordIndex, randomPronounsIndex, randomBioIndex, randomAgeIndex, randomGenderIndex, randomModeIndex, randomUniIdIndex, randomMajorIdIndex, randomAgeWeight, randomGenderWeight, randomModeWeight, randomUniWeight, randomMajorWeight, randomDaysWeight, randomTimesWeight;
 
     for (int i = 0; i < num; i++) {
-        int randomNameIndex = rand() % 5;
-        int randomPasswordIndex = rand() % 5;
-        int randomPronounsIndex = rand() % 3;
-        int randomBioIndex = rand() % 4;
-        int randomAgeIndex = rand() % 5;
-        int randomGenderIndex = rand() % 3;
-        int randomModeIndex = rand() % 2;
-        int randomUniIdIndex = rand() % 5;
-        int randomMajorIdIndex = rand() % 5;
-        int randomStudyDaysIndex = rand() % 3;
-        int randomStudyTimesIndex = rand() % 4;
-        int randomAgeWeight = rand() % 10 + 1; 
-        int randomGenderWeight = rand() % 10 + 1;
-        int randomModeWeight = rand() % 10 + 1;
-        int randomUniWeight = rand() % 10 + 1;
-        int randomMajorWeight = rand() % 10 + 1;
-        int randomDaysWeight = rand() % 10 + 1;
-        int randomTimesWeight = rand() % 10 + 1;
+        randomNameIndex = rand() % 5;
+        randomPasswordIndex = rand() % 5;
+        randomPronounsIndex = rand() % 3;
+        randomBioIndex = rand() % 4;
+        randomAgeIndex = rand() % 5;
+        randomGenderIndex = rand() % 3;
+        randomModeIndex = rand() % 2;
+        randomUniIdIndex = rand() % 5;
+        randomMajorIdIndex = rand() % 5;
+        randomAgeWeight = rand() % 10 + 1; 
+        randomGenderWeight = rand() % 10 + 1;
+        randomModeWeight = rand() % 10 + 1;
+        randomUniWeight = rand() % 10 + 1;
+        randomMajorWeight = rand() % 10 + 1;
+        randomDaysWeight = rand() % 10 + 1;
+        randomTimesWeight = rand() % 10 + 1;
 
-        User temp(names[randomNameIndex], passwords[randomPasswordIndex], pronouns[randomPronounsIndex], bios[randomBioIndex], ages[randomAgeIndex], genders[randomGenderIndex], modes[randomModeIndex], uniIds[randomUniIdIndex], majorIds[randomMajorIdIndex], studyDays[randomStudyDaysIndex], studyTimes[randomStudyTimesIndex], randomAgeWeight, randomGenderWeight, randomModeWeight, randomUniWeight, randomMajorWeight, randomDaysWeight, randomTimesWeight);
+        // Generating random bitsets
+        for (int j = 0; j < 7; ++j) {
+            studyDaysBitset[j] = rand() % 2;
+        }
+
+        for (int j = 0; j < 5; ++j) {
+            studyTimesBitset[j] = rand() % 2;
+        }
+
+        User temp(names[randomNameIndex], passwords[randomPasswordIndex], pronouns[randomPronounsIndex], bios[randomBioIndex], ages[randomAgeIndex], genders[randomGenderIndex], modes[randomModeIndex], uniIds[randomUniIdIndex], majorIds[randomMajorIdIndex], studyDaysBitset, studyTimesBitset, randomAgeWeight, randomGenderWeight, randomModeWeight, randomUniWeight, randomMajorWeight, randomDaysWeight, randomTimesWeight);
         temp.writeToCSV();
     }
 }
@@ -771,6 +762,8 @@ void printHelp() {
 
 
 int main() {
+    populateCsv(100);
+
     bool isLoggedIn = false;
     User* curr;
     UserHeap userheap;
