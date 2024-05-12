@@ -7,75 +7,98 @@ User User::registerUser() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
+    // Get user's name
     cout << "Enter name: ";
     getline(cin, name);
 
+    // Get user's password
     cout << "\nEnter password: ";
-    getline(cin,password);
+    getline(cin, password);
 
+    // Get user's pronouns
     cout << "\nEnter pronouns: ";
     getline(cin, pronouns);
 
+    // Get user's bio
     cout << "\nEnter bio: ";
     getline(cin, bio);
 
+    // Get user's age with input validation
     age = -1;
     while (age < 0) {
         cout << "\nEnter age: ";
         cin >> age;
         if (age < 0) {
-            cout << "Invalid input. Please enter a valid age: ";
+            cout << "Invalid input. Age must be a non-negative integer. Please enter a valid age.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     }
 
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
+    // Get user's gender with input validation
     gender = -1;
     while (gender == -1) {
         cout << "\nEnter gender (M/F/NB): ";
         cin >> inp;
-        //tolower(inp);
-        if (inp == "m" || inp == "male") { 
-            gender = 0; 
+        if (inp == "m" || inp == "male") {
+            gender = 0;
         } else if (inp == "f" || inp == "female") {
             gender = 1;
         } else if (inp == "nb" || inp == "non-binary") {
             gender = 2;
-        } else {cout << "Invalid input. Please enter M, F, or NB.\n";}
+        } else {
+            cout << "Invalid input. Please enter M, F, or NB.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
     }
 
+    // Get user's mode with input validation
     mode = -1;
     while (mode == -1) {
         cout << "\nEnter mode (Online/Offline): ";
         cin >> inp;
-        //tolower(inp);
-        if (inp == "online" || inp == "on") {mode = 0; }
-        else if (inp == "offline" || inp == "off") {mode = 1;}
-        else {cout << "Invalid input. Please enter Online or Offline.\n";}
+        if (inp == "online" || inp == "on") {
+            mode = 0;
+        } else if (inp == "offline" || inp == "off") {
+            mode = 1;
+        } else {
+            cout << "Invalid input. Please enter Online or Offline.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
     }
 
-
+    // Get university name with input validation
     cout << "\nEnter University Name: ";
     cin >> inp;
-    //Input Sanitation
+    while (uni_map.find(inp) == uni_map.end()) {
+        cout << "University not found. Please enter a valid University Name: ";
+        cin >> inp;
+    }
     uniId = uni_map[inp];
 
+    // Get major name with input validation
     cout << "\nEnter Major Name: ";
     cin >> inp;
-    //Input Sanitation
+    while (major_map.find(inp) == major_map.end()) {
+        cout << "Major not found. Please enter a valid Major Name: ";
+        cin >> inp;
+    }
     majorId = major_map[inp];
 
+    // Get study days per week with input validation
     cout << "\nEnter study days per week: ";
     inp = "";
     for (int i = 0; i < 7; i++) {
         char response;
-
         cout << "Do you study on " << days_list[i] << "? (y/n): ";
         cin >> response;
 
         if (response == 'y' || response == 'Y') {
-
             if (!inp.empty()) {
                 inp += ",";
             }
@@ -84,7 +107,8 @@ User User::registerUser() {
     }
     studyTimes = timesToBitset(inp);
 
+    // Create a new User object
     User newUser(name, password, pronouns, bio, age, gender, mode, uniId, majorId, studyDays, studyTimes);
-    newUser.writeToCSV();
+    newUser.writeToCSV(); // Write user data to CSV
     return newUser;
 }
