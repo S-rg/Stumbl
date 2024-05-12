@@ -494,6 +494,8 @@ void User::writeToCSV() {
     file << studyDays << ",";
     file << studyTimes << ",";
 
+    file << ageWeight << ",";
+    file << genderWeight << ",";
     file << modeWeight << ",";
     file << uniWeight << ",";
     file << majorWeight << ",";
@@ -542,35 +544,15 @@ User User::loadUser(string username, string password) {
                 string tempUsername,temp;
                 getline(ss, temp, ',');
                 getline(ss, tempUsername, ','); 
+
                 if (tempUsername == username) {
-                    string tempPronouns, tempBio;
-                    int tempUid, tempAge, tempGender, tempMode, tempUniId, tempMajorId;
-                    bitset<7> tempStudyDays;
-                    bitset<5> tempStudyTimes;
-                    int tempAgeWeight, tempGenderWeight, tempModeWeight, tempUniWeight, tempMajorWeight, tempDaysWeight, tempTimesWeight;
-
-                    getline(ss, tempPronouns, ',');
-                    getline(ss, tempBio, ',');
-
-                    ss >> tempAge;
-                    ss >> tempGender;
-                    ss.ignore();
-                    ss >> tempMode;// >> tempUniId >> tempMajorId;
-                    for (int i = 0; i < 7; ++i) {
-                        int bit;
-                        ss >> bit;
-                        tempStudyDays[i] = bit;
+                    vector<string> output;
+                    string temp;
+                    while (getline(ss, temp,',')) {
+                        output.push_back(temp);
                     }
-                    for (int i = 0; i < 5; ++i) {
-                        int bit;
-                        ss >> bit;
-                        tempStudyTimes[i] = bit;
-                    }
-                    ss >> tempAgeWeight >> tempGenderWeight >> tempModeWeight >> tempUniWeight >> tempMajorWeight >> tempDaysWeight >> tempTimesWeight;
                     file.close();
-                    return User(tempUsername, password, tempPronouns, tempBio, tempAge, tempGender, tempMode, tempUniId, tempMajorId,
-                                tempStudyDays, tempStudyTimes, tempAgeWeight, tempGenderWeight, tempModeWeight, tempUniWeight, tempMajorWeight,
-                                tempDaysWeight, tempTimesWeight);
+                    return User(tempUsername, password, output[0], output[1], stoi(output[2]), stoi(output[3]), stoi(output[4]), stoi(output[5]), stoi(output[6]), bitset<7>(output[7]), bitset<5>(output[8]), stoi(output[9]), stoi(output[10]), stoi(output[11]), stoi(output[12]), stoi(output[13]),stoi(output[14]),stoi(output[15]));
                 }
             }
             cout << "User not found in file." << endl;
