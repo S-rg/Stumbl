@@ -153,6 +153,7 @@ class User {
         int getDaysWeight() const;
         int getTimesWeight() const;
 
+        static User loadUser(string, string);
         static User login();
         void logout();
         static User registerUser();
@@ -450,7 +451,6 @@ User User::registerUser() {
             inp += days_list[i];
         }
     }
-    cout << inp;
     studyDays = daysToBitset(inp);
     
 
@@ -472,7 +472,6 @@ User User::registerUser() {
     studyTimes = timesToBitset(inp);
 
     User newUser(name, password, pronouns, bio, age, gender, mode, uniId, majorId, studyDays, studyTimes);
-    cout << newUser.toString();
     newUser.writeToCSV();
     return newUser;
 }
@@ -533,7 +532,103 @@ string User::toString() {
 
 void User::swipeLeft() {};
 void User::swipeRight() {};
-User User::login() {return User();};
+
+User User::loadUser(string username, string password) {
+    ifstream file(userDataFile);
+        if (file.is_open()) {
+            string line;
+            while (getline(file, line)) {
+                stringstream ss(line);
+                string tempUsername,temp;
+                getline(ss, temp, ',');
+                getline(ss, tempUsername, ','); 
+                if (tempUsername == username) {
+                    string tempPronouns, tempBio;
+                    int tempUid, tempAge, tempGender, tempMode, tempUniId, tempMajorId;
+                    bitset<7> tempStudyDays;
+                    bitset<5> tempStudyTimes;
+                    int tempAgeWeight, tempGenderWeight, tempModeWeight, tempUniWeight, tempMajorWeight, tempDaysWeight, tempTimesWeight;
+
+                    getline(ss, tempPronouns, ',');
+                    getline(ss, tempBio, ',');
+
+                    ss >> tempAge;
+                    ss >> tempGender;
+                    ss.ignore();
+                    ss >> tempMode;// >> tempUniId >> tempMajorId;
+                    for (int i = 0; i < 7; ++i) {
+                        int bit;
+                        ss >> bit;
+                        tempStudyDays[i] = bit;
+                    }
+                    for (int i = 0; i < 5; ++i) {
+                        int bit;
+                        ss >> bit;
+                        tempStudyTimes[i] = bit;
+                    }
+                    ss >> tempAgeWeight >> tempGenderWeight >> tempModeWeight >> tempUniWeight >> tempMajorWeight >> tempDaysWeight >> tempTimesWeight;
+                    file.close();
+                    return User(tempUsername, password, tempPronouns, tempBio, tempAge, tempGender, tempMode, tempUniId, tempMajorId,
+                                tempStudyDays, tempStudyTimes, tempAgeWeight, tempGenderWeight, tempModeWeight, tempUniWeight, tempMajorWeight,
+                                tempDaysWeight, tempTimesWeight);
+                }
+            }
+            cout << "User not found in file." << endl;
+        } else {
+            cout << "Unable to open user data file." << endl;
+        }
+        // Return an empty user if not found
+        file.close();
+        return User();
+}
+
+User User::login() {
+    string inputUsername, inputPassword;
+
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    cout << "Enter Username: ";
+    getline(cin, inputUsername);
+
+    cout << "\nEnter Password: ";
+    getline(cin, inputPassword);
+
+    ifstream file(passwordFile);
+        if (file.is_open()) {
+            string line;
+            while (getline(file, line)) {
+                stringstream ss(line);
+                string tempUsername, tempPassword, temp;
+                getline(ss, temp, ',');
+                getline(ss, tempUsername, ','); 
+                getline(ss, tempPassword, ','); 
+
+                // Remove leading and trailing whitespaces from username and password
+                tempUsername.erase(0, tempUsername.find_first_not_of(" \t\n\r\f\v"));
+                tempUsername.erase(tempUsername.find_last_not_of(" \t\n\r\f\v") + 1);
+
+                if (tempUsername != inputUsername) {continue;}
+                tempPassword.erase(0, tempPassword.find_first_not_of(" \t\n\r\f\v"));
+                tempPassword.erase(tempPassword.find_last_not_of(" \t\n\r\f\v") + 1);
+
+                if (tempPassword == inputPassword) {
+                    // Username and password matched, return the user
+                    file.close();
+                    User a = loadUser(tempUsername, tempPassword);
+                    cout << a.toString();
+                    return a;
+                }
+            }
+            cout << "Username or password is incorrect.\n";
+        } else {
+            cout << "Unable to open the password file.\n";
+        }
+        // Return an empty user if login fails
+        file.close();
+        return User();
+}
+
 void User::logout() {};
 
 //populate the csv with random data
