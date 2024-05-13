@@ -7,6 +7,7 @@
 #include <vector>
 #include <cstdlib>
 #include <limits>
+#include <algorithm>
 
 
 using namespace std;
@@ -164,10 +165,9 @@ class User {
         static User registerUser();
         void writeToCSV();
 
-        void swipeLeft();
-        void swipeRight();
+        void swipeLeft(User&, unordered_map<string,bool>&);
+        void swipeRight(User&, unordered_map<string,bool>&);
         string toString();
-        void getUserSwipes();
 };
 
 class Centroid : public User {
@@ -201,114 +201,8 @@ class Centroid : public User {
         void setValues(int, int, int, int, int, bitset<7>, bitset<5>, int, int, int, int, int, int, int);
 };
 
-class Cluster {
-    public:
-        Centroid c;
-        User* users;
-
-        Cluster();
-};
-
-class UserHeap{
-  public:
-    int arr[10];
-    int size;
-    
-    UserHeap() {arr[0]=-1; size=0;}
-
-    void insert(int val) {
-        size=size + 1;
-        int index = size;
-        arr[index] = val;
-        
-        while(index > 1) {
-            int parent = index / 2;
-            
-            if(arr[parent] < arr[index]) {
-                int temp = arr[index];
-                arr[index] = arr[parent];
-                arr[parent] = temp;
-                
-                index = parent;
-            } else { return; }
-        }
-    }
-    
-    void print() {
-        for(int i=1;i<= size; i++) {
-            cout<<arr[i]<<" ";
-        }
-        cout<<endl;
-    }
-    
-    void deleteheap() {
-        if(size ==0) {
-            return;
-        }
-        
-        arr[1] = arr[size];
-        size--;
-        
-        int i=1;
-        
-        while(i < size) {
-            int leftchild= 2 * i;
-            int rightchild= ( 2 * i) + 1;
-            
-            if(leftchild < size && arr[leftchild] > arr[i]) {
-                int temp = arr[i];
-                arr[i] = arr[leftchild];
-                arr[leftchild] = temp;
-                
-                i = leftchild;
-            } else if(rightchild < size && arr[rightchild] > arr[i]) {
-                int temp = arr[i];
-                arr[i] = arr[rightchild];
-                arr[rightchild] = temp;
-                
-                i = rightchild;
-            } else {
-                return;
-            }
-        }
-    }
-
-    void heapsort() {
-        int s=size;
-        while(s>1) {
-            int temp=arr[1];
-            arr[1]=arr[s];
-            arr[s]=temp;
-            s--;
-            heapify(arr,s,1);
-        }
-    }
-
-    void heapify(int arr[],int n,int i) {
-        int largest = i;
-        int leftchild=2*i;
-        int rightchild=(2*i)+1;
-        
-        if(leftchild <= n && arr[leftchild] > arr[largest]) {
-            int temp = arr[largest];
-            arr[largest] = arr[leftchild];
-            arr[leftchild] = temp;
-            largest = leftchild;
-        } if(rightchild <= n && arr[rightchild] > arr[largest]) {
-            int temp = arr[largest];
-            arr[largest] = arr[rightchild];
-            arr[rightchild] = temp;
-            largest = rightchild;
-        } if(largest !=i) {
-            heapify( arr,n,largest);
-        }
-    }
-};
-
-int User::id_counter = 0;
-
 User::User() {
-    name = "Test User " + to_string(id_counter);
+    name = "Test User 0";
     pronouns = "Rather Not Say";
     bio = "";
 
@@ -318,13 +212,13 @@ User::User() {
     uniId = 0;
     majorId = 0;
 
-    ageWeight = 0;
-    genderWeight = 0;
-    modeWeight = 0;
-    uniWeight = 0;
-    majorWeight = 0;
-    daysWeight = 0;
-    timesWeight = 0;
+    ageWeight = 1;
+    genderWeight = 1;
+    modeWeight = 1;
+    uniWeight = 1;
+    majorWeight = 1;
+    daysWeight = 1;
+    timesWeight = 1;
 }
 
 User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes) {
@@ -583,8 +477,12 @@ string User::toString() {
     return userString;
 }
 
-void User::swipeLeft() {};
-void User::swipeRight() {};
+void User::swipeLeft(User& viewUser, unordered_map<string,bool>& map) {
+    map[viewUser.getName()] = false;
+};
+void User::swipeRight(User& viewUser, unordered_map<string,bool>& map) {
+    map[viewUser.getName()] = true;
+};
 
 User User::loadUser(string username) {
     ifstream file(userDataFile);
@@ -652,6 +550,7 @@ User User::login() {
                 }
             }
             cout << "Username or password is incorrect.\n";
+            throw;
         } else {
             cout << "Unable to open the password file.\n";
         }
@@ -680,6 +579,37 @@ void Centroid::setValues(int age, int gender, int mode, int uniId, int majorId, 
     this->timesWeight = timesWeight;
 }
 
+bool userexists(string name){
+    ifstream f(passwordFile);
+    if (!f.is_open()){
+        cout<<"Error opening file"<<endl;
+        return true;
+    }
+    vector<string> users;
+    int numUsers=0;
+    if (f.is_open()) {
+        string line;
+        while (getline(f, line)) {
+            string entries; // Change the type of entries to vector<string>
+            size_t pos = line.find(',');
+            if (pos != string::npos) {
+                string entry = line.substr(0, pos);
+                entries=entry; // Use push_back to add entry to entries vector
+            } else {
+                entries=line; // If there is no delimiter, push the entire line
+            }
+            users.push_back(entries);
+            numUsers++;
+        }
+        f.close();
+    }
+    for(int i=0;i<numUsers;i++){
+        if(users[i]==name){
+            return true;
+        }
+    }
+    return false;
+}
 
 //populate the csv with random data
 void populateCsv(int num) {
@@ -786,26 +716,51 @@ int calculateCompactibilityScore(const User &user1, const Centroid &centroid) {
     int majorScore = findMajorScore(user1.getMajorId(), centroid.getMajorId(), user1.getMajorWeight());
     int daysOfWeekScore = findDaysOfWeekScore(user1.getStudyDays(), centroid.getStudyDays(), user1.getDaysWeight());
     int studyTimeScore = findStudyTimeScore(user1.getStudyTimes(), centroid.getStudyTimes(), user1.getTimesWeight());
-
     return ageScore + genderScore + modeScore + uniScore + majorScore + daysOfWeekScore + studyTimeScore;
 };
 
+vector<User> loadAll() {
+    vector<User> allTheStuff;
+    ifstream file(userDataFile);
+        if (file.is_open()) {
+            string line;
+            while (getline(file, line)) {
+                if (line.empty())
+                    continue;
+                stringstream ss(line);
+                string tempUsername;
+                getline(ss, tempUsername, ','); 
+                    vector<string> output;
+                    string temp;
+                    while (getline(ss, temp,',')) {
+                        output.push_back(temp);
+                    }
+                    allTheStuff.push_back(User(tempUsername, output[0], output[1], stoi(output[2]), stoi(output[3]), stoi(output[4]), stoi(output[5]), stoi(output[6]), bitset<7>(output[7]), bitset<5>(output[8]), stoi(output[9]), stoi(output[10]), stoi(output[11]), stoi(output[12]), stoi(output[13]),stoi(output[14]),stoi(output[15])));
+            }
+        } else {
+            cout << "Unable to open user data file." << endl;
+        }
+        file.close();
+        return allTheStuff;
+}
+
 
 //K MEANS
-void clusterize(const vector<User>& users, const vector<Centroid> centroids, vector<int>& clusters) {
+void clusterize(const vector<User>& users, const vector<Centroid>& centroids, vector<int>& clusters) {
     for (int i = 0; i < users.size(); i++) {
-        int minScore = clusters.front();
+        int maxScore = 0;
         int closestCluster = 0;
-        for (int j = 1; j < centroids.size(); j++) {
-            int score = calculateCompactibilityScore(users[i],centroids[j]);
-            if (score < minScore) {
-                minScore = score;
+        for (int j = 0; j < centroids.size(); j++) {
+            int score = calculateCompactibilityScore(users[i], centroids[j]);
+            if (score > maxScore) {
+                maxScore = score;
                 closestCluster = j;
             }
         }
         clusters[i] = closestCluster;
     }
 }
+
 
 void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, const vector<int>& clusters) {
     vector<vector<double>> weightSum(centroids.size(), vector<double>(14, 0));
@@ -841,40 +796,174 @@ void updateCentroids(const vector<User>& users, vector<Centroid>& centroids, con
     }
 }
 
+unordered_map<string,bool> loadSwipes(User inpUser) {
+    unordered_map<string, bool> swipes;
+    ifstream leftFile("left_swipe.csv"), rightFile("right_swipe.csv");
+    string line;
+
+    auto processLine = [&](ifstream& file, int swipeValue) {
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string user, swipedUser;
+            getline(ss, user, ',');
+            if (user == inpUser.getName()) {
+                while (getline(ss, swipedUser, ',')) {
+                    swipedUser.erase(remove(swipedUser.begin(), swipedUser.end(), ' '), swipedUser.end());  
+                    swipes[swipedUser] = swipeValue;  
+                }
+            }
+        }
+    };
+
+    processLine(leftFile, false);
+    processLine(rightFile, true);
+
+    leftFile.close();
+    rightFile.close();
+
+    return swipes;  
+}
+
+vector<vector<string>> readCSV(const string& filename) {
+    vector<vector<string>> data;
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return data;
+    }
+    string line;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        vector<string> row;
+        string cell;
+        while (getline(ss, cell, ',')) {
+            row.push_back(cell);
+        }
+        data.push_back(row);
+    }
+    file.close();
+    return data;
+}
+
+void writeCSV(const string& filename, const vector<vector<string>>& data) {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return;
+    }
+    for (const auto& row : data) {
+        for (size_t i = 0; i < row.size(); ++i) {
+            file << row[i];
+            if (i != row.size() - 1) {
+                file << ",";
+            }
+        }
+        file << "\n";
+    }
+    file.close();
+}
+
+void mapToCSV(const string& leftFile, const string& rightFile, const unordered_map<string, bool>& hashmap, const string& username) {
+    vector<vector<string>> leftData = readCSV(leftFile);
+    vector<vector<string>> rightData = readCSV(rightFile);
+
+    for (auto& row : leftData) {
+        if (!row.empty() && row[0] == username) {
+            if (hashmap.find(username) != hashmap.end() && hashmap.at(username)) {
+                row[0] = "true"; // Replace with keys from hashmap for true
+            } else {
+                row[0] = "false"; // Replace with keys from hashmap for false
+            }
+        }
+    }
+
+    for (auto& row : rightData) {
+        if (!row.empty() && row[0] == username) {
+            if (hashmap.find(username) != hashmap.end() && !hashmap.at(username)) {
+                row[0] = "false"; // Replace with keys from hashmap for false
+            } else {
+                row[0] = "true"; // Replace with keys from hashmap for true
+            }
+        }
+    }
+
+    // Write the modified data back to CSV files
+    writeCSV(leftFile, leftData);
+    writeCSV(rightFile, rightData);
+}
+
 vector<Centroid> initializeCentroids(int k) {
     vector<Centroid> centroids;
     for (int i = 0; i < k; ++i) {
-        centroids.push_back(Centroid());
+        Centroid a;
+        centroids.push_back(a);
     }
     return centroids;
 }
 
-vector<int> kmeans(vector<User>& users, int k, int maxIter) {
-    vector<Centroid> centroids = initializeCentroids(k);
-    vector<int> clusters(users.size(), -1);
-
+vector<int> kmeans(vector<User>& users, vector<Centroid>& centroids, vector<int>& clusters, int maxIter) {
     int iter = 0;
     bool converged = false;
 
     while (iter < maxIter && !converged) {
         clusterize(users, centroids, clusters);
         updateCentroids(users, centroids, clusters);
-
+        iter++;
         // convergence check
     }
 
     return clusters;
 }
 
+int findUserCluster(const User& user, const vector<Centroid>& centroids) {
+    int maxScore = 0; 
+    int clusterIndex = -1;
+    for (int i = 0; i < centroids.size(); ++i) {
+        int score = calculateCompactibilityScore(user, centroids[i]);
+        if (score > maxScore) {
+            maxScore = score;
+            clusterIndex = i; // Update cluster index for maximum score
+        }
+    }
+    return clusterIndex;
+}
+
+User findNextUserInCluster(const vector<User>& users, const vector<int>& clusters, int targetCluster, int currentIndex) {
+    for (int i = currentIndex + 1; i < users.size(); ++i) {
+        if (clusters[i] == targetCluster) {
+            return users[i]; 
+        }
+    }
+    cout << "This is blank";
+    return User(); 
+}
+User findNextUserInCluster(const vector<vector<User>> clusterData, int targetCluster, int currentIndex) {
+    int clusterSize = clusterData[targetCluster].size();
+    currentIndex = (currentIndex + 1) % clusterSize;
+    return clusterData[targetCluster][currentIndex];
+
+}
+
+vector<vector<User>> to2dVector(const vector<User>& users, const vector<int>& clusters) {
+    vector<vector<User>> clusterData(10);
+    for (int i = 0; i < users.size(); ++i)
+        clusterData[clusters[i]].push_back(users[i]);
+        
+
+    return clusterData;
+}
+
+
 char getUserChoice(bool isLoggedIn) {
     char choice;
-    if (isLoggedIn) 
+    if (isLoggedIn) {
         cout << "Enter 'L' to reject or 'R' to match. Enter 'H' for further help : ";
+    }
     else
         cout << "Enter 'L' to login or 'R' to register: ";
 
     cin >> choice;
-    return choice;
+    return toupper(choice);
 }
 
 void printHelp() {
@@ -891,28 +980,75 @@ void printHelp() {
 
 
 int main() {
-    populateCsv(100);
+    // depopulateCsv();
+    // populateCsv();
 
     bool isLoggedIn = false;
     User* curr;
-    UserHeap userheap;
-    unordered_map<int,bool> swipedMap;
+    unordered_map<string,bool> swipedMap;
 
-    if (isLoggedIn) {
-        bool done = false;
-        while(true){
-            switch (getUserChoice(true)) 
-            {
+    vector<User> users = loadAll();
+    vector<Centroid> centroids = initializeCentroids(10);
+    vector<int> clusters(users.size(), 0);
+
+    vector<int> PRAY = kmeans(users, centroids, clusters, 10);
+    vector<vector<User>> clusterData = to2dVector(users, clusters);
+    //Before Login
+    bool done = false;
+    while (true) {
+        switch (getUserChoice(false)) {
+            {case 'L':
+                User temp = User::login(); 
+                curr = &temp;
+                isLoggedIn = true;
+                done = true;
+                break;}
+            
+            {case 'R':
+                User temp = User::registerUser();
+                curr = &temp;
+                isLoggedIn = true;
+                done = true;
+                break;}
+
+            default:
+                cout << "Input Invalid";
+                break;
+        }
+        if (done) {
+            break;
+        }
+    }
+    //After Login
+    done = false;
+    bool displayNewUser = true;
+    int cluster = findUserCluster((*curr), centroids);
+    while(true){
+        int startIndex = rand() % users.size();
+        User viewUser;
+        if (displayNewUser) {
+            viewUser = findNextUserInCluster(clusterData, cluster, startIndex);
+        }
+        // if (viewUser.getName() == "Test User 0" || viewUser.getName() == (*curr).getName())
+        //     continue;
+        if (swipedMap.find(viewUser.getName()) != swipedMap.end())
+            continue;
+        cout << "\nHere's your next user \n";
+        cout << viewUser.toString();
+        switch (getUserChoice(true)) {
             case 'H':
                 printHelp();
+                displayNewUser = false;
                 break;
             
             case 'L':
-                curr->swipeLeft();
+                curr->swipeLeft(viewUser, swipedMap);
+                displayNewUser = true;
                 break;
             
             case 'R':
-                curr->swipeRight();
+                curr->swipeRight(viewUser, swipedMap);
+                displayNewUser = true;
                 break;
 
             case 'O':
@@ -923,42 +1059,17 @@ int main() {
 
             case 'V':
                 cout << curr->toString();
+                displayNewUser = false;
                 break;
 
             default:
                 cout << "Input Invalid. Type H for Help";
+                displayNewUser = false;
                 break;
-            }
-
-            if (done){
-                break;
-            }
         }
-    } else {
-        bool done = false;
-        while (true) {
-            switch (getUserChoice(false))
-            {
-            {case 'L':
-                User temp = User::login();
-                curr = &temp;
-                done = true;
-                isLoggedIn = true;
-                break;}
-            
-            {case 'R':
-                User temp = User::registerUser();
-                curr = &temp;
-                done = true;
-                isLoggedIn = true;
-                break;}
 
-            default:
-                cout << "Input Invalid";
-                break;
-            }
-
-            if (done) {break;}
+        if (done){
+            break;
         }
     }
 }
