@@ -862,7 +862,6 @@ void clusterize(const vector<User>& users, const vector<Centroid>& centroids, ve
             }
         }
         clusters[i] = closestCluster;
-        cout << "Hi";
     }
 }
 
