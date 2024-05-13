@@ -1,0 +1,25 @@
+cout << "\nEnter pronouns: ";
+getline(cin, pronouns);
+
+// Input sanitation for pronouns
+while (pronouns.empty() || pronouns.find(',') != std::string::npos) {
+    if (pronouns.find(',') != std::string::npos) {
+        cout << "Commas are not allowed in pronouns. Please enter pronouns without commas: ";
+    } else {
+        cout << "Invalid input. Please enter pronouns: ";
+    }
+    getline(cin, pronouns);
+}
+
+cout << "\nEnter bio: ";
+getline(cin, bio);
+
+// Input sanitation for bio
+while (bio.empty() || bio.find(',') != std::string::npos) {
+    if (bio.find(',') != std::string::npos) {
+        cout << "Commas are not allowed in bio. Please enter bio without commas: ";
+    } else {
+        cout << "Invalid input. Please enter bio: ";
+    }
+    getline(cin, bio);
+}
