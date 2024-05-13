@@ -166,6 +166,8 @@ class User {
         static bool userexists(string);
         void writeToCSV();
 
+        void updateWeights(User& otherUser, bool swipe);
+
         void swipeLeft(User&, unordered_map<string,bool>&);
         void swipeRight(User&, unordered_map<string,bool>&);
         string toString();
@@ -190,13 +192,13 @@ class Centroid : public User {
             for (int j = 0; j < 5; ++j) {
                 studyTimes[j] = rand() % 2;
             }
-            ageWeight = rand() % 10; 
-            genderWeight = rand() % 10;
-            modeWeight = rand() % 10;
-            uniWeight = rand() % 10;
-            majorWeight = rand() % 10;
-            daysWeight = rand() % 10;
-            timesWeight = rand() % 10;
+            ageWeight = 1 + rand() % 1000; 
+            genderWeight = 1 + rand() % 1000;
+            modeWeight = 1 + rand() % 1000;
+            uniWeight = 1 + rand() % 1000;
+            majorWeight = 1 + rand() % 1000;
+            daysWeight = 1 + rand() % 1000;
+            timesWeight = 1 + rand() % 1000;
         };
 
         void setValues(int, int, int, int, int, bitset<7>, bitset<5>, int, int, int, int, int, int, int);
@@ -213,13 +215,13 @@ User::User() {
     uniId = 0;
     majorId = 0;
 
-    ageWeight = 1;
-    genderWeight = 1;
-    modeWeight = 1;
-    uniWeight = 1;
-    majorWeight = 1;
-    daysWeight = 1;
-    timesWeight = 1;
+    ageWeight = 200;
+    genderWeight = 200;
+    modeWeight = 600;
+    uniWeight = 400;
+    majorWeight = 500;
+    daysWeight = 800;
+    timesWeight = 800;
 }
 
 User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes) {
@@ -237,13 +239,13 @@ User::User(string name, string password, string pronouns, string bio, int age, i
     this->studyDays = studyDays;
     this->studyTimes = studyTimes;
 
-    ageWeight = 1;
-    genderWeight = 1;
-    modeWeight = 1;
-    uniWeight = 1;
-    majorWeight = 1;
-    daysWeight = 1;
-    timesWeight = 1;
+    ageWeight = 200;
+    genderWeight = 200;
+    modeWeight = 600;
+    uniWeight = 400;
+    majorWeight = 500;
+    daysWeight = 800;
+    timesWeight = 800;
 }
 
 User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
@@ -495,10 +497,37 @@ string User::toString() {
     userString += "Pronouns: " + pronouns + "\n";
     userString += "Bio: " + bio + "\n";
     userString += "Age: " + to_string(age) + "\n";
-    userString += "Gender: " + to_string(gender) + "\n";
-    userString += "Mode: " + to_string(mode) + "\n";
+
+    userString += "Gender: ";
+    switch (gender) {
+        case 0:
+            userString += "Male\n";
+            break;
+        
+        case 1:
+            userString += "Female\n";
+            break;
+
+        case 2:
+            userString += "Non Binary\n";
+            break;
+    }
+
+    userString += "Mode: ";
+    switch (mode)
+    {
+    case 0:
+        userString += "Online\n";
+        break;
+    
+    case 1:
+        userString += "Offline\n";
+        break;
+    }
+
     userString += "Uni ID: " + to_string(uniId) + "\n";
     userString += "Major ID: " + to_string(majorId) + "\n";
+    
     userString += "Study Days: " + studyDays.to_string() + "\n";
     userString += "Study Times: " + studyTimes.to_string() + "\n";
     return userString;
@@ -506,9 +535,11 @@ string User::toString() {
 
 void User::swipeLeft(User& viewUser, unordered_map<string,bool>& map) {
     map[viewUser.getName()] = false;
+    this->updateWeights(viewUser, false);
 };
 void User::swipeRight(User& viewUser, unordered_map<string,bool>& map) {
     map[viewUser.getName()] = true;
+    this->updateWeights(viewUser, true);
 };
 
 User User::loadUser(string username) {
@@ -638,6 +669,26 @@ bool User::userexists(string name){
     return false;
 }
 
+void User::updateWeights(User& otherUser, bool swipeRight) {
+    if (swipeRight) {
+        if (gender == otherUser.getGender()) {genderWeight *= 1.05;}
+        if (abs(age - otherUser.getAge()) <= 5) {ageWeight *= 1.05;}
+        if (mode == otherUser.getMode()) {modeWeight *= 1.05;}
+        if (uniId == otherUser.getUniId()) {uniWeight *= 1.05;}
+        if (majorId == otherUser.getMajorId()) {majorWeight *= 1.05;}
+        if ((studyDays & otherUser.getStudyDays()).count() > 0) {daysWeight *= 1.05;}
+        if ((studyTimes & otherUser.getStudyTimes()).count() > 0) {timesWeight *= 1.05;}
+    } else {
+        if (gender != otherUser.getGender()) {genderWeight *= 0.95;}
+        if (abs(age - otherUser.getAge()) > 5) {ageWeight *= 0.95;}
+        if (mode != otherUser.getMode()) {modeWeight *= 0.95;}
+        if (uniId != otherUser.getUniId()) {uniWeight *= 0.95;}
+        if (majorId != otherUser.getMajorId()) {majorWeight *= 0.95;}
+        if ((studyDays & otherUser.getStudyDays()).none() > 0) {daysWeight *= 0.95;}
+        if ((studyTimes & otherUser.getStudyTimes()).none() > 0) {timesWeight *= 0.95;}
+    }
+}
+
 //populate the csv with random data
 void populateCsv(int num) {
     string names[] = {
@@ -688,13 +739,13 @@ void populateCsv(int num) {
         randomModeIndex = rand() % 2;
         randomUniIdIndex = rand() % 5;
         randomMajorIdIndex = rand() % 5;
-        randomAgeWeight = rand() % 10 + 1; 
-        randomGenderWeight = rand() % 10 + 1;
-        randomModeWeight = rand() % 10 + 1;
-        randomUniWeight = rand() % 10 + 1;
-        randomMajorWeight = rand() % 10 + 1;
-        randomDaysWeight = rand() % 10 + 1;
-        randomTimesWeight = rand() % 10 + 1;
+        randomAgeWeight = rand() % 1000 + 1; 
+        randomGenderWeight = rand() % 1000 + 1;
+        randomModeWeight = rand() % 1000 + 1;
+        randomUniWeight = rand() % 1000 + 1;
+        randomMajorWeight = rand() % 1000 + 1;
+        randomDaysWeight = rand() % 1000 + 1;
+        randomTimesWeight = rand() % 1000 + 1;
 
         // Generating random bitsets
         for (int j = 0; j < 7; ++j) {
@@ -718,8 +769,11 @@ void depopulateCsv() {
     file2.close();
 }
 
-int findAgeScore(int myAge, int otherAge, int ageWeight) { 
-    return abs(myAge - otherAge) / ageWeight;
+int findAgeScore(int myAge, int otherAge, int ageWeight) {
+    if (myAge - otherAge == 0) {
+        return ageWeight;
+    }
+    return ageWeight / abs(myAge - otherAge);
 }
 
 int findGenderScore(const int& myGender, const int& otherGender, int genderWeight) {
@@ -739,11 +793,13 @@ int findMajorScore(const int& myMajor, const int& otherMajor, int majorWeight) {
 }
 
 int findDaysOfWeekScore(bitset<7> myDays, bitset<7> otherDays, int daysWeight) {
-    return (myDays & otherDays).count() * daysWeight / 7 ;
+    if (myDays.count() == 0) {return 0;}
+    return (myDays & otherDays).count() * daysWeight / myDays.count() ;
 }
 
 int findStudyTimeScore(bitset<5> myTime, bitset<5> otherTime, int timesWeight) {
-    return (myTime & otherTime).count() * timesWeight / 5;
+    if (myTime.count() == 0) {return 0;}
+    return (myTime & otherTime).count() * timesWeight / myTime.count();
 }
 
 int calculateCompactibilityScore(const User &user1, const User &user2) {
@@ -808,6 +864,7 @@ void clusterize(const vector<User>& users, const vector<Centroid>& centroids, ve
             }
         }
         clusters[i] = closestCluster;
+        cout << "Hi";
     }
 }
 
@@ -1044,6 +1101,14 @@ int main() {
     vector<int> PRAY = kmeans(users, centroids, clusters, 10);
     vector<vector<User>> clusterData = to2dVector(users, clusters);
 
+    for (size_t i = 0; i < clusterData.size(); ++i) {
+    cout << "Cluster " << i << ":\n";
+    // Iterate over each user in the current cluster
+    for (auto& user : clusterData[i]) {
+        cout << user.getName() << endl; // Assuming getName() returns the user's name
+    }
+    cout << endl; // Add a newline between clusters
+}
     //Before Login
     bool done = false;
     while (true) {
