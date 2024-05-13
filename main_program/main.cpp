@@ -132,8 +132,6 @@ class User {
         int timesWeight;
 
     public:
-        static int id_counter;  
-
         User(); // no values given
         User(string, string, string, string, int, int, int, int, int, bitset<7>, bitset<5>); //only bio data
         User(string, string, string, string, int, int, int, int, int, bitset<7>, bitset<5>, int, int, int, int, int, int, int); // all weights
@@ -1035,20 +1033,19 @@ int findUserCluster(const User& user, const vector<Centroid>& centroids) {
     return clusterIndex;
 }
 
-User findNextUserInCluster(const vector<User>& users, const vector<int>& clusters, int targetCluster, int currentIndex) {
-    for (int i = currentIndex + 1; i < users.size(); ++i) {
-        if (clusters[i] == targetCluster) {
-            return users[i]; 
-        }
-    }
-    cout << "This is blank";
-    return User(); 
-}
+// User findNextUserInCluster(const vector<User>& users, const vector<int>& clusters, int targetCluster, int currentIndex) {
+//     for (int i = currentIndex + 1; i < users.size(); ++i) {
+//         if (clusters[i] == targetCluster) {
+//             return users[i]; 
+//         }
+//     }
+//     cout << "This is blank";
+//     return User(); 
+// }
 User findNextUserInCluster(const vector<vector<User>> clusterData, int targetCluster, int currentIndex) {
     int clusterSize = clusterData[targetCluster].size();
     currentIndex = (currentIndex + 1) % clusterSize;
     return clusterData[targetCluster][currentIndex];
-
 }
 
 vector<vector<User>> to2dVector(const vector<User>& users, const vector<int>& clusters) {
@@ -1101,14 +1098,6 @@ int main() {
     vector<int> PRAY = kmeans(users, centroids, clusters, 10);
     vector<vector<User>> clusterData = to2dVector(users, clusters);
 
-    for (size_t i = 0; i < clusterData.size(); ++i) {
-    cout << "Cluster " << i << ":\n";
-    // Iterate over each user in the current cluster
-    for (auto& user : clusterData[i]) {
-        cout << user.getName() << endl; // Assuming getName() returns the user's name
-    }
-    cout << endl; // Add a newline between clusters
-}
     //Before Login
     bool done = false;
     while (true) {
