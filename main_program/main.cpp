@@ -163,6 +163,7 @@ class User {
         static User login();
         void logout();
         static User registerUser();
+        static bool userexists(string);
         void writeToCSV();
 
         void swipeLeft(User&, unordered_map<string,bool>&);
@@ -236,13 +237,13 @@ User::User(string name, string password, string pronouns, string bio, int age, i
     this->studyDays = studyDays;
     this->studyTimes = studyTimes;
 
-    ageWeight = 0;
-    genderWeight = 0;
-    modeWeight = 0;
-    uniWeight = 0;
-    majorWeight = 0;
-    daysWeight = 0;
-    timesWeight = 0;
+    ageWeight = 1;
+    genderWeight = 1;
+    modeWeight = 1;
+    uniWeight = 1;
+    majorWeight = 1;
+    daysWeight = 1;
+    timesWeight = 1;
 }
 
 User::User(string name, string password, string pronouns, string bio, int age, int gender, int mode, int uniId, int majorId, bitset<7> studyDays, bitset<5> studyTimes, int ageWeight, int genderWeight, int modeWeight, int uniWeight, int majorWeight, int daysWeight, int timesWeight) {
@@ -324,6 +325,11 @@ User User::registerUser() {
 
     cout << "Enter name: ";
     getline(cin, name);
+    while (userexists(name)) {
+        cout << "Username already exists, try again: ";
+        getline(cin, name);
+    }
+    
 
     cout << "\nEnter password: ";
     getline(cin,password);
@@ -397,6 +403,9 @@ User User::registerUser() {
             }
             inp += days_list[i];
         }
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     }
     studyDays = daysToBitset(inp);
     
@@ -415,6 +424,9 @@ User User::registerUser() {
             }
             inp += time_list[i];
         }
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     }
     studyTimes = timesToBitset(inp);
 
@@ -579,7 +591,7 @@ void Centroid::setValues(int age, int gender, int mode, int uniId, int majorId, 
     this->timesWeight = timesWeight;
 }
 
-bool userexists(string name){
+bool User::userexists(string name){
     ifstream f(passwordFile);
     if (!f.is_open()){
         cout<<"Error opening file"<<endl;
@@ -613,7 +625,20 @@ bool userexists(string name){
 
 //populate the csv with random data
 void populateCsv(int num) {
-    string names[] = {"Alice", "Bob", "Charlie", "David", "Eve"};
+    string names[] = {"JohnSmith", "EmmaJohnson", "MichaelWilliams", "EmilyBrown", "WilliamJones",
+        "SophiaMiller", "JamesDavis", "OliviaGarcia", "OliverRodriguez", "IsabellaMartinez",
+        "LucasHernandez", "AvaLopez", "AlexanderGonzalez", "CharlotteWilson", "MasonAnderson",
+        "AmeliaThomas", "BenjaminTaylor", "MiaMoore", "EthanJackson", "HarperWhite",
+        "LoganHarris", "EvelynMartin", "JacobThompson", "AveryRobinson", "DanielClark",
+        "AbigailLewis", "LiamLee", "ElizabethWalker", "NoahHall", "SofiaAllen",
+        "MatthewYoung", "GraceKing", "DavidWright", "ChloeScott", "DanielNguyen",
+        "VictoriaGreen", "NathanBaker", "MadisonAdams", "DylanNelson", "EllaHill",
+        "RyanRamirez", "HannahCampbell", "ChristopherMitchell", "BrooklynCarter", "IsaacPerez",
+        "SamuelTurner", "ZoePhillips", "JosephParker", "LilyEvans", "AndrewEdwards",
+        "GabrielCollins", "AddisonStewart", "AnthonyFlores", "NatalieMorris", "JohnMoore",
+        "MadelynRogers", "WyattReed", "SamanthaCook", "JonathanMorgan", "LaylaPeterson",
+        "CalebCooper", "HaileyBell", "OwenMurphy"};
+
     string passwords[] = {"password1", "password2", "password3", "password4", "password5"};
     string pronouns[] = {"she/her", "he/him", "they/them"};
     string bios[] = {"I love coding!", "Music is my passion.", "I'm a bookworm.", "I enjoy outdoor activities."};
@@ -981,7 +1006,7 @@ void printHelp() {
 
 int main() {
     // depopulateCsv();
-    // populateCsv();
+    // populateCsv(100);
 
     bool isLoggedIn = false;
     User* curr;
@@ -1025,16 +1050,16 @@ int main() {
     int cluster = findUserCluster((*curr), centroids);
     while(true){
         int startIndex = rand() % users.size();
-        User viewUser;
-        if (displayNewUser) {
-            viewUser = findNextUserInCluster(clusterData, cluster, startIndex);
-        }
-        // if (viewUser.getName() == "Test User 0" || viewUser.getName() == (*curr).getName())
-        //     continue;
-        if (swipedMap.find(viewUser.getName()) != swipedMap.end())
+        User viewUser = findNextUserInCluster(clusterData, cluster, startIndex);
+        if (swipedMap.find(viewUser.getName()) != swipedMap.end()) {
+            cout << "Already there";
             continue;
-        cout << "\nHere's your next user \n";
-        cout << viewUser.toString();
+        }
+            
+        if (displayNewUser) {
+            cout << "\nHere's your next user \n";
+            cout << viewUser.toString();
+        }
         switch (getUserChoice(true)) {
             case 'H':
                 printHelp();
