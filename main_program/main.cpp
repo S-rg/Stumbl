@@ -335,12 +335,30 @@ User User::registerUser() {
     getline(cin,password);
 
     cout << "\nEnter pronouns: ";
-    //Input Sanitation
     getline(cin, pronouns);
 
+    // Input sanitation for pronouns
+    while (pronouns.empty() || pronouns.find(',') != std::string::npos) {
+        if (pronouns.find(',') != std::string::npos) {
+            cout << "Commas are not allowed in pronouns. Please enter pronouns without commas: ";
+        } else {
+            cout << "Invalid input. Please enter pronouns: ";
+        }
+        getline(cin, pronouns);
+    }
+
     cout << "\nEnter bio: ";
-    //Input Sanitation
     getline(cin, bio);
+
+    // Input sanitation for bio
+    while (bio.empty() || bio.find(',') != std::string::npos) {
+        if (bio.find(',') != std::string::npos) {
+            cout << "Commas are not allowed in bio. Please enter bio without commas: ";
+        } else {
+            cout << "Invalid input. Please enter bio: ";
+        }
+        getline(cin, bio);
+    }
 
     age = -1;
     while (age < 0) {
@@ -358,12 +376,11 @@ User User::registerUser() {
     while (gender == -1) {
         cout << "\nEnter gender (M/F/NB): ";
         cin >> inp;
-        //tolower(inp);
-        if (inp == "m" || inp == "male") { 
+        if (inp == "m" || inp == "male" || inp == "M") { 
             gender = 0; 
-        } else if (inp == "f" || inp == "female") {
+        } else if (inp == "f" || inp == "female" || inp == "F") {
             gender = 1;
-        } else if (inp == "nb" || inp == "non-binary") {
+        } else if (inp == "nb" || inp == "non-binary" || inp == "NB") {
             gender = 2;
         } else {cout << "Invalid input. Please enter M, F, or NB.\n";}
     }
@@ -381,12 +398,10 @@ User User::registerUser() {
 
     cout << "\nEnter University Name: ";
     cin >> inp;
-    //Input Sanitation
     uniId = uni_map[inp];
 
     cout << "\nEnter Major Name: ";
     cin >> inp;
-    //Input Sanitation
     majorId = major_map[inp];
 
     cout << "\nEnter study days per week: ";
@@ -625,19 +640,29 @@ bool User::userexists(string name){
 
 //populate the csv with random data
 void populateCsv(int num) {
-    string names[] = {"JohnSmith", "EmmaJohnson", "MichaelWilliams", "EmilyBrown", "WilliamJones",
-        "SophiaMiller", "JamesDavis", "OliviaGarcia", "OliverRodriguez", "IsabellaMartinez",
-        "LucasHernandez", "AvaLopez", "AlexanderGonzalez", "CharlotteWilson", "MasonAnderson",
-        "AmeliaThomas", "BenjaminTaylor", "MiaMoore", "EthanJackson", "HarperWhite",
-        "LoganHarris", "EvelynMartin", "JacobThompson", "AveryRobinson", "DanielClark",
-        "AbigailLewis", "LiamLee", "ElizabethWalker", "NoahHall", "SofiaAllen",
-        "MatthewYoung", "GraceKing", "DavidWright", "ChloeScott", "DanielNguyen",
-        "VictoriaGreen", "NathanBaker", "MadisonAdams", "DylanNelson", "EllaHill",
-        "RyanRamirez", "HannahCampbell", "ChristopherMitchell", "BrooklynCarter", "IsaacPerez",
-        "SamuelTurner", "ZoePhillips", "JosephParker", "LilyEvans", "AndrewEdwards",
-        "GabrielCollins", "AddisonStewart", "AnthonyFlores", "NatalieMorris", "JohnMoore",
-        "MadelynRogers", "WyattReed", "SamanthaCook", "JonathanMorgan", "LaylaPeterson",
-        "CalebCooper", "HaileyBell", "OwenMurphy"};
+    string names[] = {
+        "Emma", "Liam", "Olivia", "Noah", "Ava", "William", "Sophia", "James", "Isabella", "Oliver",
+        "Charlotte", "Benjamin", "Amelia", "Elijah", "Mia", "Lucas", "Harper", "Mason", "Evelyn", "Logan",
+        "Abigail", "Alexander", "Emily", "Michael", "Madison", "Jackson", "Elizabeth", "Ethan", "Avery",
+        "Daniel", "Sofia", "Henry", "Chloe", "Joseph", "Grace", "Samuel", "Aubrey", "David", "Ellie",
+        "Carter", "Scarlett", "Wyatt", "Zoe", "John", "Hannah", "Jack", "Natalie", "Luke", "Lily",
+        "Owen", "Brooklyn", "Dylan", "Addison", "Matthew", "Victoria", "Grayson", "Leah", "Gabriel",
+        "Audrey", "Anthony", "Samantha", "Leo", "Claire", "Lincoln", "Anna", "Jaxon", "Isabelle",
+        "Asher", "Stella", "Christopher", "Nora", "Joshua", "Lucy", "Andrew", "Maya", "Theodore",
+        "Aria", "Caleb", "Elena", "Ryan", "Penelope", "Nathan", "Hazel", "Miles", "Gabriella",
+        "Sebastian", "Alice", "Eli", "Kinsley", "Jeremiah", "Madeline", "Brayden", "Ellie", "Jordan",
+        "Peyton", "Colton", "Lillian", "Ian", "Addison", "Dominic", "Isabel", "Xavier", "Ivy",
+        "Adam", "Layla", "Jayden", "Kylie", "Justin", "Emilia", "Julian", "Harmony", "Landon",
+        "Alexa", "Robert", "Adeline", "Easton", "Alexandra", "Carson", "Molly", "Ezra", "Zoey",
+        "Brooks", "Luna", "Micah", "Eva", "Charles", "Jasmine", "Harrison", "Gianna", "Nolan",
+        "Eleanor", "Bryson", "Elise", "Jordan", "Nova", "Nicholas", "Ruby", "Parker", "Leila",
+        "Nathaniel", "Margaret", "Jace", "Lucia", "Dylan", "Juliana", "Sawyer", "Sara", "Gavin",
+        "Violet", "Wyatt", "Rebecca", "Roman", "Camila", "Elias", "Brielle", "Jaxson", "Willow",
+        "Greyson", "Aurora", "Levi", "Hannah", "Austin", "CorA", "Everett", "Madelyn", "Jonah",
+        "Clara", "Brantley", "Kaylee", "Josiah", "Delilah", "Maxwell", "Sophie", "Axel", "Olga",
+        "Xander", "Catherine", "Chase", "Valentina", "Cole", "Piper", "Bentley", "Liliana", "Jude",
+        "Lyla", "Braxton", "Adalynn", "Tristan", "Jade", "Dominic", "Natalia", "Emmett", "Danielle",
+        "Knox", "Rylee", "Bennett", "Lydia"};
 
     string passwords[] = {"password1", "password2", "password3", "password4", "password5"};
     string pronouns[] = {"she/her", "he/him", "they/them"};
@@ -654,7 +679,7 @@ void populateCsv(int num) {
     int randomNameIndex, randomPasswordIndex, randomPronounsIndex, randomBioIndex, randomAgeIndex, randomGenderIndex, randomModeIndex, randomUniIdIndex, randomMajorIdIndex, randomAgeWeight, randomGenderWeight, randomModeWeight, randomUniWeight, randomMajorWeight, randomDaysWeight, randomTimesWeight;
 
     for (int i = 0; i < num; i++) {
-        randomNameIndex = rand() % 5;
+        randomNameIndex = i;
         randomPasswordIndex = rand() % 5;
         randomPronounsIndex = rand() % 3;
         randomBioIndex = rand() % 4;
@@ -1006,7 +1031,7 @@ void printHelp() {
 
 int main() {
     // depopulateCsv();
-    // populateCsv(100);
+    // populateCsv(180);
 
     bool isLoggedIn = false;
     User* curr;
@@ -1018,6 +1043,7 @@ int main() {
 
     vector<int> PRAY = kmeans(users, centroids, clusters, 10);
     vector<vector<User>> clusterData = to2dVector(users, clusters);
+
     //Before Login
     bool done = false;
     while (true) {
@@ -1048,14 +1074,18 @@ int main() {
     done = false;
     bool displayNewUser = true;
     int cluster = findUserCluster((*curr), centroids);
+    int dupli_count = 0;
     while(true){
         int startIndex = rand() % users.size();
         User viewUser = findNextUserInCluster(clusterData, cluster, startIndex);
         if (swipedMap.find(viewUser.getName()) != swipedMap.end()) {
-            cout << "Already there";
+            dupli_count += 1;
+            if (dupli_count > 100) {
+                cluster += 1;
+            }
             continue;
         }
-            
+        dupli_count = 0;   
         if (displayNewUser) {
             cout << "\nHere's your next user \n";
             cout << viewUser.toString();
